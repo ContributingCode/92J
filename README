@@ -1,0 +1,22 @@
+API for tracking community outreach events
+
+Feature and Task List:
+	-Getting relevant event data
+	-Displaying Data
+	-Participation Analytics
+	-Geolocation results
+	-Facebook integration
+		a. Logon
+		b. Comments
+		c. "share"
+	-Robust framework (html form template)
+	-Check-in (optional)
+
+Possible sites for scraping:
+	-Habitat for humanity (assigned to Zac)
+	-Sierra club
+	-Code for America
+	-Local organizations
+
+Scraping??
+	-Internal to Node server app, performs scrape twice daily at non-peak hours
