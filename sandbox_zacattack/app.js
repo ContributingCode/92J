@@ -49,6 +49,14 @@ else{
 
 var mongourl = generate_mongo_url(mongo);
 
+//initiate database connection.
+var collections = ["users"];
+var db = require("mongojs").connect(mongourl, collections);
+
+db.users.ensureIndex({"fb_uid" : 1}, function(err, log) {
+	console.log(err);
+	console.log(log);
+});
 
 
 // listen to the PORT given to us in the environment
@@ -98,7 +106,8 @@ function handle_facebook_request(req, res) {
   if (req.facebook.token) {
 
     req.facebook.get('/me', function(me) {
-    	console.log(me.id);
+ 	db.users.save({"fb_uid" : me.id});
+	console.log(me.id);
     });
     async.parallel([
       function(cb) {
