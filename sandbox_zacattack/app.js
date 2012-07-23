@@ -1,6 +1,13 @@
 var async   = require('async');
 var express = require('express');
 var util    = require('util');
+var jQuery = require('jQuery');
+
+
+// Example useage of getJSON.  Important for querying Volunteer Match
+//jQuery.getJSON('http://twitter.com/status/user_timeline/treason.json?count=10&callback=?',function(data) {
+//  console.log(data);
+//});
 
 // create an express webserver
 var app = express.createServer(
@@ -11,11 +18,18 @@ var app = express.createServer(
   // set this to a secret value to encrypt session cookies
   express.session({ secret: process.env.SESSION_SECRET || 'secret123' }),
   require('faceplate').middleware({
-    app_id: '134704860002736', //process.env.FACEBOOK_APP_ID,
-    secret: '9d33607e5529952db133fb5742c336d7', //process.env.FACEBOOK_SECRET,
+    app_id:  process.env.FACEBOOK_APP_ID,
+    secret:  process.env.FACEBOOK_SECRET,
     scope:  'user_likes,user_photos,user_photo_video_tags'
   })
 );
+
+// Stores account information for Volunteer Match
+var volunteerMatch = {
+  accountName: process.env.VOLUNTEER_MATCH_ACCOUNT,
+  accountKey: process.env.VOLUNTEER_MATCH_KEY
+};
+
 
 
 
