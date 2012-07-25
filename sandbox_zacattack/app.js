@@ -1,7 +1,7 @@
 var async   = require('async');
 var express = require('express');
 var util    = require('util');
-var jQuery = require('jQuery');
+//var jQuery = require('jQuery');
 
 
 // Example useage of getJSON.  Important for querying Volunteer Match
@@ -31,7 +31,7 @@ var volunteerMatch = {
   accountKey: process.env.VOLUNTEER_MATCH_KEY,
   accountSecret: process.env.VOLUNTEER_MATCH_SECRET
 };
-
+/*
 var name = volunteerMatch.accountName;
 var key = volunteerMatch.accountKey;
 var secret  = volunteerMatch.accountSecret;
@@ -63,7 +63,7 @@ function DisplayResponse() {
 
 }
 
-
+*/
 
 
 // Create database instance

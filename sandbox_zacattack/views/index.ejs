@@ -25,7 +25,13 @@
     <meta property="og:description" content="Encouraging volunteer work by making it easy to brag" />
     <meta property="fb:app_id" content="<%= app.id %>" />
 
-    <script type="text/javascript" src="/scripts/jquery.min.js"></script>
+
+    <!-- jQuery UI definitions -->
+    <link rel="stylesheet" href="stylesheets/flick/jquery-ui-1.8.22.custom.css" media="Screen" type="text/css" />
+    <script type="text/javascript" src="/scripts/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="/scripts/jquery-ui-1.8.22.custom.min.js"></script>
+    <!-- end definitions -->
+
 
     <script type="text/javascript">
       function logResponse(response) {
@@ -34,53 +40,6 @@
         }
       }
 
-      $(function(){
-        // Set up so we handle click on the buttons
-        $('#postToWall').click(function() {
-          FB.ui(
-            {
-              method : 'feed',
-              link   : $(this).attr('data-url')
-            },
-            function (response) {
-              // If response is null the user canceled the dialog
-              if (response != null) {
-                logResponse(response);
-              }
-            }
-          );
-        });
-
-        $('#sendToFriends').click(function() {
-          FB.ui(
-            {
-              method : 'send',
-              link   : $(this).attr('data-url')
-            },
-            function (response) {
-              // If response is null the user canceled the dialog
-              if (response != null) {
-                logResponse(response);
-              }
-            }
-          );
-        });
-
-        $('#sendRequest').click(function() {
-          FB.ui(
-            {
-              method  : 'apprequests',
-              message : $(this).attr('data-message')
-            },
-            function (response) {
-              // If response is null the user canceled the dialog
-              if (response != null) {
-                logResponse(response);
-              }
-            }
-          );
-        });
-      });
     </script>
 
     <!--[if IE]>
@@ -90,6 +49,7 @@
           document.createElement(tags.pop());
       </script>
     <![endif]-->
+
   </head>
   <body>
     <div id="fb-root"></div>
@@ -125,6 +85,15 @@
         js.src = "//connect.facebook.net/en_US/all.js";
         fjs.parentNode.insertBefore(js, fjs);
       }(document, 'script', 'facebook-jssdk'));
+
+      <!--  My custom elements -->
+      $(function() {
+        $( "#accordion" ).accordion({
+          collapsible: true
+        });
+      });
+
+
     </script>
 
     <header class="clearfix">
@@ -133,40 +102,56 @@
 
       <div>
         <h1><strong><%= user.name %></strong></h1>
-       <!-- <p class="tagline">
-          This is your app
-          <a href="<%= app.link %>" target="_top"><%= app.name %></a> 
-        </p>
-
-        <div id="share-app">
-          <p>Share your app:</p>
-          <ul>
-            <li>
-              <a href="#" class="facebook-button" id="postToWall" data-url="<%= url() %>">
-                <span class="plus">Post to Wall</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="facebook-button speech-bubble" id="sendToFriends" data-url="<%= url() %>">
-                <span class="speech-bubble">Send Message</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="facebook-button apprequests" id="sendRequest" data-message="Test this awesome app">
-                <span class="apprequests">Send Requests</span>
-              </a>
-            </li>
-          </ul>
-        </div>
       </div>
-      <% } %>-->
+
+
+
+
+      <% } %>
     </header>
 
 
     <% if (user) { %>
+      <section>
+          <!-- Accordian -->
 
-    <section id="samples" class="clearfix">
+      <div class="demo">
 
+          <div id="accordion">
+            <h3><a href="#">Section 1</a></h3>
+            <div>
+              <p>Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.</p>
+            </div>
+            <h3><a href="#">Section 2</a></h3>
+            <div>
+              <p>Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum sit amet purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris turpis porttitor velit, faucibus interdum tellus libero ac justo. Vivamus non quam. In suscipit faucibus urna. </p>
+            </div>
+            <h3><a href="#">Section 3</a></h3>
+            <div>
+              <p>Nam enim risus, molestie et, porta ac, aliquam ac, risus. Quisque lobortis. Phasellus pellentesque purus in massa. Aenean in pede. Phasellus ac libero ac tellus pellentesque semper. Sed ac felis. Sed commodo, magna quis lacinia ornare, quam ante aliquam nisi, eu iaculis leo purus venenatis dui. </p>
+              <ul>
+                <li>List item one</li>
+                <li>List item two</li>
+                <li>List item three</li>
+              </ul>
+            </div>
+            <h3><a href="#">Section 4</a></h3>
+            <div>
+              <p>Cras dictum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lacinia mauris vel est. </p><p>Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. </p>
+            </div>
+          </div>
+
+          </div>
+
+
+          <!-- End Accordian -->
+      </section>
+    <% } %>
+
+
+    <% if (user) { %>
+
+    <!-- Friends who use the app -->
       <div class="list">
         <h3>Friends using this app</h3>
         <ul id="friends_using_app" class="friends">
@@ -180,8 +165,9 @@
           <% }); %>
         </ul>
       </div>
+    <!-- end friends who use the app -->
 
-    </section>
+
 
     <% } %>
   </body>
