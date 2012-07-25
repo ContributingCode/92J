@@ -24,11 +24,44 @@ var app = express.createServer(
   })
 );
 
+// Connect app to Volunteer Match 
 // Stores account information for Volunteer Match
 var volunteerMatch = {
   accountName: process.env.VOLUNTEER_MATCH_ACCOUNT,
-  accountKey: process.env.VOLUNTEER_MATCH_KEY
+  accountKey: process.env.VOLUNTEER_MATCH_KEY,
+  accountSecret: process.env.VOLUNTEER_MATCH_SECRET
 };
+
+var name = volunteerMatch.accountName;
+var key = volunteerMatch.accountKey;
+var secret  = volunteerMatch.accountSecret;
+var path = ;
+
+function SendRequest(action, query, type) {
+var timestamp = time();
+var nonce = hash('sha1', openssl_random_pseudo_bytes(20));
+var date = date('Y-m-d\TH:i:sO', timestamp);
+var digest = base64_encode(hash('sha256', $nonce . $date . self::$key, TRUE));
+var header_array = array( 'Content-Type' => 'application/json',
+					  'Authorization' => 'WSSE profile="UsernameToken"',
+					  'X-WSSE' => 
+					  'UsernameToken Username="' . self::$username . 
+					  '", PasswordDigest="' . $digest .
+					  '", Nonce="' . $nonce .
+					  '", Created="' . $date .
+					  '"');
+var url = path + "?action=" + action;
+if (query != NULL) {
+   var json_query = JSON.stringify(query);
+   url = url + "&query=" +  urlencode(json_query);
+}  
+
+}
+
+
+function DisplayResponse() {
+
+}
 
 
 
