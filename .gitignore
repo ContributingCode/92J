@@ -41,3 +41,5 @@ Thumbs.db
 launch.sh
 .env
 node_modules
+*.bak
+*.yml

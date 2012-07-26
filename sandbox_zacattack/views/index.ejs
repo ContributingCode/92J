@@ -50,9 +50,11 @@
       </script>
     <![endif]-->
 
-  </head>
-  <body>
-    <div id="fb-root"></div>
+
+
+
+
+    <!-- <div id="fb-root"></div> -->
     <script type="text/javascript">
       window.fbAsyncInit = function() {
         FB.init({
@@ -96,26 +98,19 @@
 
     </script>
 
-    <header class="clearfix">
-      <% if (user) { %>
-      <p id="picture" style="background-image: url(https://graph.facebook.com/<%= user.id %>/picture?type=normal)"></p>
-
-      <div>
-        <h1><strong><%= user.name %></strong></h1>
-      </div>
 
 
 
 
-      <% } %>
-    </header>
 
 
-    <% if (user) { %>
+  </head>
+  <body onload="initialize()"> 
+
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <style type="text/css">
-      html { height: 80% }
-      body { height: 80%; margin: 20; padding: 20 }
+      html { height: 90% }
+      body { height: 90%; margin: 0; padding: 0 }
       #map_canvas { height: 100% }
     </style>
     <script type="text/javascript"
@@ -126,19 +121,35 @@
         var mapOptions = {
           center: new google.maps.LatLng(-34.397, 150.644),
           zoom: 8,
+	  disableDefaultUI: true,
+	  zoomControl: true,
+	  zoomControlOptions: { 
+		  style: google.maps.ZoomControlStyle.SMALL,
+		  position: google.maps.ControlPosition.TOP_RIGHT  },
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         var map = new google.maps.Map(document.getElementById("map_canvas"),
             mapOptions);
       }
     </script>
-  <body onload="initialize()">
-    <div id="map_canvas" style="width:50%; height:50%"></div>
-  </body>
-    
-    
-    
-      <section>
+    <div id="map_canvas" style="style=position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 0;"></div>
+ 
+
+
+    <header class="clearfix">
+      <% if (user) { %>
+      <p id="picture" style="background-image: url(https://graph.facebook.com/<%= user.id %>/picture?type=normal)"></p>
+
+      <div>
+        <h1><strong><%= user.name %></strong></h1>
+      </div>
+
+      <% } %>
+    </header>
+
+
+    <% if (user) { %>
+     <section>
           <!-- Accordian -->
 
       <div class="demo">
