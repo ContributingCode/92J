@@ -26,11 +26,11 @@ var app = express.createServer(
 
 // Connect app to Volunteer Match 
 // Stores account information for Volunteer Match
-var volunteerMatch = {
-  accountName: process.env.VOLUNTEER_MATCH_ACCOUNT,
-  accountKey: process.env.VOLUNTEER_MATCH_KEY,
-  accountSecret: process.env.VOLUNTEER_MATCH_SECRET
-};
+//var volunteerMatch = {
+//  accountName: process.env.VOLUNTEER_MATCH_ACCOUNT,
+//  accountKey: process.env.VOLUNTEER_MATCH_KEY,
+//  accountSecret: process.env.VOLUNTEER_MATCH_SECRET
+//};
 /*
 var name = volunteerMatch.accountName;
 var key = volunteerMatch.accountKey;
@@ -83,26 +83,34 @@ else{
 	}
     }
 
-    var generate_mongo_url = function(obj){
-	obj.hostname = (obj.hostname || 'localhost');
-	obj.port = (obj.port || 27017);
-	obj.db = (obj.db || 'users');
-
-	if(obj.username && obj.password){
-		return "mongodb://" + obj.username + ":" + obj.password + "@" + obj.hostname + ":" + obj.port + "/" + obj.db;
+//    var generate_mongo_url = function(obj){
+//	obj.hostname = (obj.hostname || 'localhost');
+//	obj.port = (obj.port || 27017);
+//	obj.db = (obj.db || 'users');
+//
+//	if(obj.username && obj.password){
+//		return "mongodb://" + obj.username + ":" + obj.password + "@" + obj.hostname + ":" + obj.port + "/" + obj.db;
+//	}
+//	else{
+//		return "mongodb://" + obj.hostname + ":" + obj.port + "/" + obj.db;
+//	}
+//    }
+//
+//var mongourl = generate_mongo_url(mongo);
+//
+    	var params = {
+		host: mongo.hostname,
+		port: mongo.port,
+		username: mongo.username,
+		password: mongo.password,
+		db: mongo.db
 	}
-	else{
-		return "mongodb://" + obj.hostname + ":" + obj.port + "/" + obj.db;
-	}
-    }
-
-var mongourl = generate_mongo_url(mongo);
 
 //initiate database connection.
 var collections = ["users"];
-var db = require("mongojs").connect(mongourl, collections);
+var db = require("mongojs").connect(params, collections);
 
-db.users.ensureIndex({"fb_uid" : 1}, function(err, log) {
+db.users.ensureIndex({"fb_uid" : 1}, {unique:true}, function(err, log) {
 	console.log(err);
 	console.log(log);
 });
