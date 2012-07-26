@@ -2,7 +2,7 @@
 <html xmlns:fb="http://ogp.me/ns/fb#" lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />-->
 
     <title><%= app.name %></title>
     <link rel="stylesheet" href="stylesheets/screen.css" media="Screen" type="text/css" />
@@ -112,6 +112,32 @@
 
 
     <% if (user) { %>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 80% }
+      body { height: 80%; margin: 20; padding: 20 }
+      #map_canvas { height: 100% }
+    </style>
+    <script type="text/javascript"
+      src="http://maps.googleapis.com/maps/api/js?key=AIzaSyB0Td6aNPonQtxz_sr30TDPETU2fzma78s&sensor=true">
+    </script>
+    <script type="text/javascript">
+      function initialize() {
+        var mapOptions = {
+          center: new google.maps.LatLng(-34.397, 150.644),
+          zoom: 8,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("map_canvas"),
+            mapOptions);
+      }
+    </script>
+  <body onload="initialize()">
+    <div id="map_canvas" style="width:50%; height:50%"></div>
+  </body>
+    
+    
+    
       <section>
           <!-- Accordian -->
 
