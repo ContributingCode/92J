@@ -29,6 +29,40 @@ h1 {
   font-weight: normal;
 }
 
+
+/* --------------------------------------*/
+
+/* main_menu
+------------------------------------------*/
+
+main_menu {
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  width: 500px;
+  overflow: hidden;
+  background-color: yellow;
+}
+
+
+
+main_menu #picture + div {
+  margin-left: 82px;
+  margin-bottom: 10px;
+}
+
+main_menu #picture {
+  background-position: center 25%;
+  background-repeat: no-repeat;
+  background-size: 64px;
+  float: left;
+  margin-right: 18px;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+}
+
+
 /* ------------------------------------------ */
 
 /* =header
@@ -370,8 +404,9 @@ header .tagline {
 /* ------------------------------------------ */
 
 /* =clearfix
---------------------------------------------- */
+--------------------------------------------- 
 .clearfix:after {
+  width: 32px;
   clear: both;
   content: ".";
   display: block;
@@ -382,5 +417,6 @@ header .tagline {
 }
 
 .clearfix {
+  width: 400px;
   zoom: 1;
-}
+}*/
