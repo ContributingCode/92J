@@ -133,19 +133,21 @@
             </ul>
             <div id="tabs-1">
               <!-- Accordion -->
+                <%if(!req.user_events) { %>
 
+                <h3> You Have Participated In No Events.  Get Out There! </h3>
+
+                <% } else { %>
               <div id="accordion">
 
-                <% req.user_events.forEach(function(event) { %>
+                <%req.user_events.forEach(function(event) { %>
                 <h3><a href="#"> <%= event.title %> </a></h3>
                   <div>
                     <a href="http://<%= event.vmURL %>"> <%= event.vmURL %> </a>
                   </div>
 
-                  <% }); %>
+                  <% }); }%>
                 </div>
-
-
 
               <!--End Accordion -->
             </div>

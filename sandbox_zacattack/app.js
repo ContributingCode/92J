@@ -294,7 +294,7 @@ function handle_facebook_request(req, res) {
       function(cb) {
         req.facebook.get('/me', function(me) {
           db.users.find({'fb_uid': me.id}, function(err, result) {
-            if(err || !result)
+            if(err || result.length == 0)
             {
               req.user_events = [];
             }
