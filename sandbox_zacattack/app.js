@@ -132,6 +132,10 @@ db.users.ensureIndex({"fb_uid" : 1}, {unique:true}, function(err, log) {
 	console.log(log);
 });
 
+db.users.ensureIndex({"links" : 1}, function(err, log) {
+	console.log('Error: ' + err);
+	console.log('log: ' + log);
+});
 
 // listen to the PORT given to us in the environment
 var port = (process.env.VMC_APP_PORT || 3000);
@@ -172,6 +176,53 @@ function render_page(req, res) {
       });
     });
   });
+}
+
+var url = 'http://www.facebook.com';
+
+
+function spit_details(req,res){
+	console.log('ID  = ' + req.params.id);
+	//Check if logged in..
+	//if(req.facebook.token) {
+		//Give me your details..
+		//req.facebook.get('/me', function(me) {
+			//Searching if you exist..
+			var id = req.params.id;
+			db.users.find({'fb_uid': id}, function(err, result) {
+				if(err) {
+					//Somethings broken
+					console.log('error: ' + err);
+				} else if(result.length == 0) {
+					//Couldn't find ...hmmm must add you
+					console.log('Record not found' + result);
+					db.users.save({'fb_uid' : id, 'links': ['http://fb.com']}, function(err,log) {
+						console.log('Callback');
+						var body = 'You are new, but dont worry everybody here was once new but now its their home coz you never leave ...Hotel California';
+						res.writeHead(200, {
+							  'Content-Length': body.length,
+							    'Content-Type': 'text/plain' });
+						res.end(body);
+					});
+				} else { console.log("Found, " + JSON.stringify(result));
+					//Found .. here are your embarrasing details
+					var url = 'http://reddit.com/r/funny'
+					db.users.update({'fb_uid': id}, 
+							{$set: {'fb_uid': id}, $push: {'links': url}}, 
+							true, 
+							function(err,log) {
+								console.log("Callback");
+								var body = JSON.stringify(result);
+//								res.writeHead(200, {
+//									'Content-Length': body.length,
+//							    		'Content-Type': 'text/plain' });
+								res.send(result);
+//								res.end(body);
+							});
+				}
+	  		});
+		//});
+	//}
 }
 
 function handle_facebook_request(req, res) {
@@ -223,3 +274,7 @@ function handle_facebook_request(req, res) {
 
 app.get('/', handle_facebook_request);
 app.post('/', handle_facebook_request);
+
+app.get('/details/:id', spit_details);
+app.post('/details/:id', spit_details);
+
