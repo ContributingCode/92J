@@ -225,59 +225,41 @@ function spit_details(req,res) {
 	//}
 }
 
+/*
 function init_details(userid, return_value) {
-	console.log('ID  = ' + userid);
-	//Check if logged in..
-	//if(req.facebook.token) {
-		//Give me your details..
-		//req.facebook.get('/me', function(me) {
-			//Searching if you exist..
-			var id = userid;
-			db.users.find({'fb_uid': id}, function(err, result) {
-				if(err) {
-					//Somethings broken
-					console.log('error: ' + err);
-				} else if(result.length == 0) {
-					//Couldn't find ...hmmm must add you
-					console.log('Record not found' + result);
-					db.users.save({'fb_uid' : id, 'links': ['http://fb.com']}, function(err,log) {
-						console.log('Callback');
-//						var body = 'You are new, but dont worry everybody here was once new but now its their home coz you never leave ...Hotel California';
-//						res.writeHead(200, {
-//							  'Content-Length': body.length,
-//							    'Content-Type': 'text/plain' });
-//						res.end(body);
-						return_value = log
-					});
-				} else { console.log("Found, " + JSON.stringify(result));
-					//Found .. here are your embarrasing details
-					var url = 'http://reddit.com/r/funny'
-					db.users.update({'fb_uid': id}, 
-							{$set: {'fb_uid': id}, $push: {'links': url}}, 
-							true, 
-							function(err,log) {
-								console.log("Callback");
-								var body = JSON.stringify(result);
-//								res.writeHead(200, {
-//									'Content-Length': body.length,
-//							    		'Content-Type': 'text/plain' });
-//								res.send(result);
-//								res.end(body);
-								return_value = result;
-							});
-				}
-	  		});
-		//});
-	//}
+	var id = userid;
+	db.users.find({'fb_uid': id}, function(err, result) {
+		if(err) {
+			//Somethings broken
+			console.log('error: ' + err);
+		} else if(result.length == 0) {
+			//Couldn't find ...hmmm must add you
+			console.log('Record not found' + result);
+			db.users.save({'fb_uid' : id, 'links': ['http://fb.com']}, function(err,log) {
+				console.log('Callback');
+				return_value = log;
+			});
+		} else { 
+      console.log("Found, " + JSON.stringify(result));
+			//Found .. here are your embarrasing details
+      return_value = result;
+    }
 }
+*/
+
+
+var debug_event = { location: 'vmware',
+    title: 'ContributingCode',
+    parentOrg: 'EMC',
+    vmURL: 'contributingcode.cloudfoundry.com' };
+
+
 
 function handle_facebook_request(req, res) {
  
   // if the user is logged in
   if (req.facebook.token) {
-
   req.facebook.get('/me', function(me) {
- 	db.users.save({"fb_uid" : me.id});
 	console.log(me.id);
     });
     async.parallel([
@@ -308,7 +290,23 @@ function handle_facebook_request(req, res) {
           req.friends_using_app = result;
           cb();
         });
-      }
+      },
+      function(cb) {
+        req.facebook.get('/me', function(me) {
+          db.users.find({'fb_uid': me.id}, function(err, result) {
+            if(err || !result)
+            {
+              req.user_events = [];
+            }
+            else
+            {
+              console.log(result[0].events);
+              req.user_events = result[0].events;
+            }
+            cb();
+          });
+        });
+      },
     ], function() {
       render_page(req, res);
     });
