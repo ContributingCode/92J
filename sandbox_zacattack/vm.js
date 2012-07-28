@@ -56,9 +56,10 @@ function searchOrganizations(loc) {
 	 return data = SendRequest('searchOrganizations', conds);
 }
 
-function searchOpportunities(conds) {
-	 
-	 SendRequest('searchOpportunities', conds);
+function searchOpportunities(loc) {
+	 fd = ["name", "location", "title", "parentOrg", "vmUrl", "imageUrl"];
+	 conds = { location : loc,  nbOfResults : 20, pageNumber : 3, fieldsToDisplay : fd };
+	 return data = SendRequest('searchOpportunities', conds);
 }
 
 
@@ -68,7 +69,7 @@ function searchOpportunities(conds) {
 // SendRequest('helloWorld', query);
 // query = {};
 // SendRequest('getKeyStatus', query);
-// conds = { location : "94108",  nbOfResults : 10, pageNumber : 3, fieldsToDisplay : [ "name" , "location" ], names : [ "red cross" ] };
-// searchOrganizations(conds);
-searchOrganizations("San francisco");
-
+// searchOrganizations("Springfield");
+//searchOrganizations("San Francisco");
+var loc = { city : 'Chicago', region : 'IL', country : 'US' };
+searchOpportunities(loc);
