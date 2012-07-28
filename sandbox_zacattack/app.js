@@ -115,7 +115,7 @@ else{
 //
 //var mongourl = generate_mongo_url(mongo);
 //
-    	var params = {
+    var params = {
 		host: mongo.hostname,
 		port: mongo.port,
 		username: mongo.username,
