@@ -3,12 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />-->
+
     <title><%= app.name %></title>
     <link rel="stylesheet" href="stylesheets/screen.css" media="Screen" type="text/css" />
     <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-width: 480px), only screen and (max-device-width: 480px)" type="text/css" />
+
     <!--[if IEMobile]>
     <link rel="stylesheet" href="mobile.css" media="screen" type="text/css"  />
     <![endif]-->
+
     <!-- These are Open Graph tags.  They add meta data to your  -->
     <!-- site that facebook uses when your content is shared     -->
     <!-- over facebook.  You should fill these tags in with      -->
@@ -22,15 +25,22 @@
     <meta property="og:description" content="Encouraging volunteer work by making it easy to brag" />
     <meta property="fb:app_id" content="<%= app.id %>" />
 
+
     <!-- jQuery UI definitions -->
     <link rel="stylesheet" href="stylesheets/flick/jquery-ui-1.8.22.custom.css" media="Screen" type="text/css" />
     <script type="text/javascript" src="/scripts/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="/scripts/jquery-ui-1.8.22.custom.min.js"></script>
     <!-- end definitions -->
 
-    <!-- Google Map API -->
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyB0Td6aNPonQtxz_sr30TDPETU2fzma78s&sensor=true"></script>
-    <!-- End Google Map API-->
+
+    <script type="text/javascript">
+      function logResponse(response) {
+        if (console && console.log) {
+          console.log('The response was', response);
+        }
+      }
+
+    </script>
 
     <!--[if IE]>
       <script type="text/javascript">
@@ -40,16 +50,9 @@
       </script>
     <![endif]-->
 
-    <!-- Google and Facebook Magic -->
+  </head>
+  <body>
     <div id="fb-root"></div>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <style type="text/css">
-      html { height: 90% }
-      body { height: 90%; margin: 0; padding: 0 }
-      #map_canvas { height: 100% }
-    </style>
-    <!-- End the Magic -->
-
     <script type="text/javascript">
       window.fbAsyncInit = function() {
         FB.init({
@@ -88,84 +91,92 @@
         $( "#accordion" ).accordion({
           collapsible: true
         });
-
-        $('#tabs').tabs({
-          css : "background: none",
-        });
       });
 
-      //Map Initialization. TODO: Center map at startup to more relevant location
 
+    </script>
+
+    <header class="clearfix">
+      <% if (user) { %>
+      <p id="picture" style="background-image: url(https://graph.facebook.com/<%= user.id %>/picture?type=normal)"></p>
+
+      <div>
+        <h1><strong><%= user.name %></strong></h1>
+      </div>
+
+
+
+
+      <% } %>
+    </header>
+
+
+    <% if (user) { %>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 80% }
+      body { height: 80%; margin: 20; padding: 20 }
+      #map_canvas { height: 100% }
+    </style>
+    <script type="text/javascript"
+      src="http://maps.googleapis.com/maps/api/js?key=AIzaSyB0Td6aNPonQtxz_sr30TDPETU2fzma78s&sensor=true">
+    </script>
+    <script type="text/javascript">
       function initialize() {
         var mapOptions = {
           center: new google.maps.LatLng(-34.397, 150.644),
           zoom: 8,
-          disableDefaultUI: true,
-          zoomControl: true,
-          zoomControlOptions: { 
-            style: google.maps.ZoomControlStyle.SMALL,
-            position: google.maps.ControlPosition.TOP_RIGHT  },
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         var map = new google.maps.Map(document.getElementById("map_canvas"),
             mapOptions);
       }
     </script>
-  </head>
+  <body onload="initialize()">
+    <div id="map_canvas" style="width:50%; height:50%"></div>
+  </body>
+    
+    
+    
+      <section>
+          <!-- Accordian -->
 
-  <body onload="initialize()"> 
-    <div id="map_canvas" style="style=position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 0;"></div>
-    <main_menu>
-      <% if (user) { %>
-        <section>
-            <!-- Accordian -->
-          <div id="tabs">
-            <h2 class="demoHeaders">
-               <p id="picture" style="background-image: url(https://graph.facebook.com/<%= user.id %>/picture?type=normal)"></p>
-                <div>
-                  <h1><strong><%= user.name %></strong></h1>
-                </div>
-            </h2>
-            <ul>
-              <li><a href="#tabs-1">First</a></li>
-              <li><a href="#tabs-2">Second</a></li>
-            </ul>
-            <div id="tabs-1">
-              <!-- Accordion -->
-              <div id="accordion">
-                <h3><a href="#">Section 1</a></h3>
-                <div>
-                  <p>Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.</p>
-                </div>
-                <h3><a href="#">Section 2</a></h3>
-                <div>
-                  <p>Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum sit amet purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris turpis porttitor velit, faucibus interdum tellus libero ac justo. Vivamus non quam. In suscipit faucibus urna. </p>
-                </div>
-                <h3><a href="#">Section 3</a></h3>
-                <div>
-                  <p>Nam enim risus, molestie et, porta ac, aliquam ac, risus. Quisque lobortis. Phasellus pellentesque purus in massa. Aenean in pede. Phasellus ac libero ac tellus pellentesque semper. Sed ac felis. Sed commodo, magna quis lacinia ornare, quam ante aliquam nisi, eu iaculis leo purus venenatis dui. </p>
-                  <ul>
-                    <li>List item one</li>
-                    <li>List item two</li>
-                    <li>List item three</li>
-                  </ul>
-                </div>
-                <h3><a href="#">Section 4</a></h3>
-                <div>
-                  <p>Cras dictum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lacinia mauris vel est. </p><p>Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. </p>
-                </div>
-                
-              </div>
-              <div id="tabs-2">Phasellus mattis tincidunt nibh. Cras orci urna, blandit id, pretium vel, aliquet ornare, felis. Maecenas scelerisque sem non nisl. Fusce sed lorem in enim dictum bibendum.</div>
+      <div class="demo">
+
+          <div id="accordion">
+            <h3><a href="#">Section 1</a></h3>
+            <div>
+              <p>Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.</p>
+            </div>
+            <h3><a href="#">Section 2</a></h3>
+            <div>
+              <p>Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum sit amet purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris turpis porttitor velit, faucibus interdum tellus libero ac justo. Vivamus non quam. In suscipit faucibus urna. </p>
+            </div>
+            <h3><a href="#">Section 3</a></h3>
+            <div>
+              <p>Nam enim risus, molestie et, porta ac, aliquam ac, risus. Quisque lobortis. Phasellus pellentesque purus in massa. Aenean in pede. Phasellus ac libero ac tellus pellentesque semper. Sed ac felis. Sed commodo, magna quis lacinia ornare, quam ante aliquam nisi, eu iaculis leo purus venenatis dui. </p>
+              <ul>
+                <li>List item one</li>
+                <li>List item two</li>
+                <li>List item three</li>
+              </ul>
+            </div>
+            <h3><a href="#">Section 4</a></h3>
+            <div>
+              <p>Cras dictum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lacinia mauris vel est. </p><p>Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. </p>
             </div>
           </div>
-        <!-- End Accordian -->
-        </section>
-      <% } %>
-    </main_menu>
+
+          </div>
+
+
+          <!-- End Accordian -->
+      </section>
+    <% } %>
 
 
     <% if (user) { %>
+
     <!-- Friends who use the app -->
       <div class="list">
         <h3>Friends using this app</h3>
@@ -181,6 +192,9 @@
         </ul>
       </div>
     <!-- end friends who use the app -->
+
+
+
     <% } %>
   </body>
 </html>

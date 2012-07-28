@@ -111,10 +111,14 @@ var collections = ["users"];
 var db = require("mongojs").connect(params, collections);
 
 db.users.ensureIndex({"fb_uid" : 1}, {unique:true}, function(err, log) {
-	console.log(err);
-	console.log(log);
+	console.log('Error: ' + err);
+	console.log('log: ' + log);
 });
 
+db.users.ensureIndex({"visit_count" : 1}, function(err, log) {
+	console.log('Error: ' + err);
+	console.log('log: ' + log);
+});
 
 // listen to the PORT given to us in the environment
 var port = (process.env.VMC_APP_PORT || 3000);
@@ -157,14 +161,51 @@ function render_page(req, res) {
   });
 }
 
+var url = 'http://www.facebook.com';
+
+//function db_get_everything(id) {
+//	db.users.find({'fb_uid': id}, function(err, result) { /*Empty*/});
+//	console.log(ret);
+//}
+
 function handle_facebook_request(req, res) {
  
   // if the user is logged in
   if (req.facebook.token) {
 
   req.facebook.get('/me', function(me) {
- 	db.users.save({"fb_uid" : me.id});
-	console.log(me.id);
+// 	db.users.save({"fb_uid" : me.id});
+//	db.users.findAndModify({
+//			      query: {fb_uid: me.id},
+//			      update: {fb_uid: me_id, visit_count: 1},
+//			      upsert: true}, function(err,log){
+//			      console.log('Error - ' + err);
+//			      console.log('Log - ' + log)});
+	  //db_get_everything(me.id);
+	  console.log("trying to save.." + me.id);
+	  db.users.find({'fb_uid': me.id}, function(err, result) {
+		       if(err) console.log('error: ' + err);
+			else if(result.length == 0) {
+				console.log("Record not found");
+ 				db.users.save({"fb_uid" : me.id, "visit_count": ['http://fb.com']}, function(err,log) {console.log("Callback");});
+			}
+			else { console.log("Found, " + result);
+	  			db.users.update({'fb_uid': me.id}, {$set: {'fb_uid': me.id}, $push: {'visit_count': url}}, true, function(err,log) {console.log("Callback");});
+			}
+	  		});
+//	  db.users.update({'fb_uid': 1}, {$set: {'fb_uid': 1}, $inc: {'visit_count': 1}}, true, function(err,log) {console.log("Callback");});
+
+//	  if(cur == null) {
+//		  console.log('Object does not exist adding..' + me.id);
+//		  db.users.save({"fb_uid": me.id, "visit_count": 1}, function(err, saved) {
+//			         if( err || !saved ) console.log("User not saved");
+//			         else console.log("User saved");
+//		  });
+//	  } else {
+//		  console.log("Object found, updating.." + cur.fb_uid);
+//		  db.users.save({"fb_uid": cur.fb_uid}, {$inc: {visiting_count: 1}});
+//	  }
+	  console.log(me.id);
     });
     async.parallel([
       function(cb) {

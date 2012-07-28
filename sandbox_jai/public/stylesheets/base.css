@@ -9,7 +9,8 @@ body {
   color: #999;
   font: 14px/1.5em "Lucida Grande", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  margin: 0px;
+  width: 720px;
+  margin: 20px;
 }
 
 a:link, a:visited {
@@ -27,96 +28,31 @@ h1 {
   font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 18px;
   font-weight: normal;
-  background-color: transparent;
 }
-
-
-/* --------------------------------------*/
-
-/* main_menu
-------------------------------------------*/
-
-main_menu {
-  position: absolute;
-  top: 50px;
-  left: 50px;
-  width: 500px;
-  overflow: hidden;
-  background: url(/images/samples-bg2.png)
-}
-
-
-
-main_menu #picture + div {
-  margin-left: 82px;
-  margin-bottom: 10px;
-  background-color: transparent;
-  background: transparent;
-
-}
-
-main_menu #picture {
-  background-position: center 25%;
-  background-repeat: no-repeat;
-  background-size: 64px;
-  float: left;
-  margin-right: 18px;
-  width: 64px;
-  height: 64px;
-  overflow: hidden;
-  background-color: transparent;
-  background: transparent;
-}
-
-main_menu #tabs{
-  background-color: transparent;
-  background: transparent;
-
-}
-
-main_menu #demoHeaders {
-  background-color: transparent;
-  background: transparent;
-}
-
-main_menu h1 {
-  margin: 0 0 9px;
-  padding: 2px 0 8px;
-  width: 250px;
-  background-color: transparent;
-  background: transparent;
-}
-
 
 /* ------------------------------------------ */
 
 /* =header
 --------------------------------------------- */
 header {
+  border-left: 1px solid #b3b3b3;
+  border-right: 1px solid #b3b3b3;
+  border-top: 1px solid #b3b3b3;
   font-size: 11px;
   padding: 24px 18px;
-  position: absolute;
-  z-index: 100;
-  left: 50px;
-  top: 50px;
-  width: 100;
 }
 
 header h1 {
+  border-bottom: 2px solid #e9e9e9;
   margin: 0 0 9px;
   padding: 2px 0 8px;
-  width: 250px;
 }
 
 header #picture + div {
-  position: absolute;
   margin-left: 82px;
-  margin-bottom: 80px;
 }
 
 header #picture {
-  
-  position: absolute;
   background-position: center 25%;
   background-repeat: no-repeat;
   background-size: 64px;
@@ -127,19 +63,7 @@ header #picture {
   overflow: hidden;
 }
 
-
-header #demo {
-  position:absolute;
-  z-index: 100;
-  left: 0px;
-  top: 100px;
-  width: 250px;
-
-}
-
-
 header .tagline {
-  position: absolute; 
   float: left;
 }
 
@@ -425,9 +349,8 @@ header .tagline {
 /* ------------------------------------------ */
 
 /* =clearfix
---------------------------------------------- 
+--------------------------------------------- */
 .clearfix:after {
-  width: 32px;
   clear: both;
   content: ".";
   display: block;
@@ -438,6 +361,5 @@ header .tagline {
 }
 
 .clearfix {
-  width: 400px;
   zoom: 1;
-}*/
+}

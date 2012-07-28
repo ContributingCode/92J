@@ -1,0 +1,16 @@
+--- 
+applications: 
+  .: 
+    instances: 1
+    url: fb-login-92j.cloudfoundry.com
+    name: fb-login-92j
+    services: 
+      mongodb-92j: 
+        type: mongodb
+    mem: 64M
+    framework: 
+      info: 
+        description: Node.js Application
+        exec: 
+        mem: 64M
+      name: node
