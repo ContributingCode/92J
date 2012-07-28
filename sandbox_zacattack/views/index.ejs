@@ -116,9 +116,10 @@
             return false; 
           });
       });
-
+      
       //Map Initialization. TODO: Center map at startup to more
       // relevant location
+      var map = null;
       function initialize() {
         var mapOptions = {
           center: new google.maps.LatLng(-34.397, 150.644),
@@ -130,7 +131,7 @@
             position: google.maps.ControlPosition.TOP_RIGHT  },
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
-        var map = new google.maps.Map(document.getElementById("map_canvas"),
+        map = new google.maps.Map(document.getElementById("map_canvas"),
             mapOptions);
 
          centerOnCurrentPosition(map);
@@ -174,7 +175,34 @@
         });
       }
 
+    function showAddress(address) {
+            var geocoder = new google.maps.Geocoder();
+      if (geocoder) {
+    geocoder.geocode(
+        {'address': address}, 
+        function(results, status) { 
+            if (status == google.maps.GeocoderStatus.OK) { 
+                var loc = results[0].geometry.location;
+                map.setCenter(results[0].geometry.location);
+                // use loc.lat(), loc.lng()
+              var marker = new google.maps.Marker({
+                              position: new google.maps.LatLng(loc),
+                            map: map
+              });
 
+      google.maps.event.addListener(marker, 'click', (function(marker) {
+        return function() {
+          infowindow.setContent(address);
+          infowindow.open(map, marker);
+        }
+      }));
+            } 
+            else {
+                alert("Not found: " + status); 
+            } 
+      });
+}
+    }
 
     </script>
   </head>
@@ -250,6 +278,9 @@
         </section>
       <% } %>
     </main_menu>
+    <form action="#" onsubmit="showAddress(this.address.value); return false">
+        <input type="text" style="width:350px" name="address" value="3401 Hillview Ave Palo Alto, CA" />
+        <input type="submit" value="Search Address" />
   </body>
 </html>
 
