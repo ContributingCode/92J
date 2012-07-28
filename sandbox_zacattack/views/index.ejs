@@ -166,6 +166,8 @@
           console.log(position.coords.latitude);
           console.log(position.coords.longitude);
           map.setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+
+          //var marker=new google.maps.Marker({position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),map:map,title:"You are here!"});
         },
         function(position){
           console.log("sucks");
@@ -234,12 +236,15 @@
                       <div class="demo">
                       <a href="#">An anchor</a>
                       </div><!-- End demo -->
-
-
                   </div>
                 <!-- end friends who use the app -->
                 <% } %>
               </div>
+
+
+              <div ide="tabs-3">
+              </div>
+
             </div>
           </div>
         </section>
