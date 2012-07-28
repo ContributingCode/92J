@@ -107,9 +107,27 @@
             position: google.maps.ControlPosition.TOP_RIGHT  },
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
+      geocoder = new google.maps.Geocoder();
         var map = new google.maps.Map(document.getElementById("map_canvas"),
             mapOptions);
-      }
+
+      // make map center at loc
+      function centerizeMap(map, loc) {
+           geocoder.getLatLng(
+            loc,
+            function(point) {
+                if (!point) {
+                    alert(address + " not found");
+                } else {
+                    map.setCenter(point, 13)
+               };
+          });
+     }
+    var loc = 'New York';
+    centerizeMap(map, loc); 
+   );
+}
+
     </script>
   </head>
 
