@@ -84,7 +84,8 @@
       }(document, 'script', 'facebook-jssdk'));
 
       <!--  My custom elements -->
-      $(function() {
+
+      $(document).ready(function() {   
         $( "#accordion" ).accordion({
           collapsible: true
         });
@@ -92,6 +93,30 @@
         $('#tabs').tabs({
           css : "background: none",
         });
+
+        $( "input:submit, a, button", ".demo" ).button();
+        $( "a", ".demo" ).click(function() { 
+
+            var jsonToSend = {
+                "uid": "551444466",
+                "event": {  "location" : "vmware",  "title" : "ContributingCode",   "parentOrg" : "EMC",  "vmURL" : "contributingcode.cloudfoundry.com" }
+            }
+            
+            $.ajax({
+              url: 'http://localhost:3000/save_user',
+              type: 'POST',
+              dataType: 'json',
+              data: jsonToSend,
+              success: function() { console.log("sent");}
+            });
+
+            console.log("Hit"); 
+            return false; 
+          });
+
+
+
+
       });
 
       //Map Initialization. TODO: Center map at startup to more relevant location
@@ -109,6 +134,7 @@
         };
         var map = new google.maps.Map(document.getElementById("map_canvas"),
             mapOptions);
+
       }
     </script>
   </head>
@@ -166,6 +192,12 @@
                         </li>
                       <% }); %>
                     </ul>
+
+                      <div class="demo">
+                      <a href="#">An anchor</a>
+                      </div><!-- End demo -->
+
+
                   </div>
                 <!-- end friends who use the app -->
                 <% } %>
