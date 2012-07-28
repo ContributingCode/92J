@@ -110,6 +110,8 @@
               success: function() { console.log("sent");}
             });
 
+            centerOnCity('New York');
+
             console.log("Hit"); 
             return false; 
           });
@@ -130,13 +132,48 @@
         };
         var map = new google.maps.Map(document.getElementById("map_canvas"),
             mapOptions);
-      var loc = 'New York';
-      geocoder = new google.maps.Geocoder();
-      geocoder.geocode({'address' : loc}, function (results, status) {
-              if (status == google.maps.GeocoderStatus.OK) {
-                          map.setCenter(results[0].geometry.location);
-              }});
+
+         centerOnCurrentPosition(map);
       }
+
+      function centerOnCity(loc)
+      {
+
+          var mapOptions = {
+          center: new google.maps.LatLng(-34.397, 150.644),
+          zoom: 8,
+          disableDefaultUI: true,
+          zoomControl: true,
+          zoomControlOptions: { 
+            style: google.maps.ZoomControlStyle.SMALL,
+            position: google.maps.ControlPosition.TOP_RIGHT  },
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("map_canvas"),
+            mapOptions);
+
+        geocoder = new google.maps.Geocoder();
+        geocoder.geocode({'address' : loc}, function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                            map.setCenter(results[0].geometry.location);
+                }});
+      }
+
+      function centerOnCurrentPosition(map)
+      {
+
+        navigator.geolocation.getCurrentPosition(function(position) {
+          console.log(position.coords.latitude);
+          console.log(position.coords.longitude);
+          map.setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+        },
+        function(position){
+          console.log("sucks");
+        });
+      }
+
+
+
     </script>
   </head>
 
