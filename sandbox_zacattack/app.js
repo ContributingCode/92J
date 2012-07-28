@@ -72,13 +72,13 @@ function SendRequest(action, query) {
 
 // input the location string
 function searchOrganizations(loc) {
-	 fd = ["name", "location", "title", "parentOrg", "vmUrl", "imageUrl"];
+	 fd = ["name", "location", "title", "beneficiary", "vmUrl", "imageUrl"];
 	 conds = { location : loc,  nbOfResults : 20, pageNumber : 3, fieldsToDisplay : fd };
 	 return data = SendRequest('searchOrganizations', conds);
 }
 
 function searchOpportunities(loc) {
-	 fd = ["name", "location", "title", "parentOrg", "vmUrl", "imageUrl"];
+	 fd = ["name", "location", "title", "beneficiary", "vmUrl", "imageUrl"];
 	 conds = { location : loc,  nbOfResults : 20, pageNumber : 3, fieldsToDisplay : fd };
 	 return data = SendRequest('searchOpportunities', conds);
 }
