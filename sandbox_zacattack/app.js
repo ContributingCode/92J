@@ -316,6 +316,30 @@ function handle_facebook_request(req, res) {
   }
 }
 
+// /searchOpportunities?loc
+app.get('/:fun/:loc', function(req, res){
+		   // location parser
+		   // TODO : city, region , country
+		   // var loc = {
+		   //     city : req.params[1],
+		   //     region : req.params[2],
+		   //     country : req.params[3]
+		   // } 
+		   var loc = req.route.params.loc;
+		   switch(req.route.params.fun) {
+		   		 case 'searchOpportunities' : 
+		   		 data = searchOpportunities(loc);
+		   		 break;
+		   		 case 'searchOrganizations' :
+		   		 data = searchOrganizations(loc);
+		   		 break;
+		   		 default :
+		   }
+             data = searchOrganizations(loc);
+
+    res.send(data);
+});
+
 app.get('/', handle_facebook_request);
 app.post('/', handle_facebook_request);
 
