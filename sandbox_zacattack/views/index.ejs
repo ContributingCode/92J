@@ -44,8 +44,8 @@
     <div id="fb-root"></div>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <style type="text/css">
-      html { height: 90% }
-      body { height: 90%; margin: 0; padding: 0 }
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
       #map_canvas { height: 100% }
     </style>
     <!-- End the Magic -->
@@ -127,8 +127,9 @@
                 </div>
             </h2>
             <ul>
-              <li><a href="#tabs-1">First</a></li>
-              <li><a href="#tabs-2">Second</a></li>
+              <li><a href="#tabs-1">Works</a></li>
+              <li><a href="#tabs-2">Friends</a></li>
+              <li><a href="#tabs-3">Nearby Events</a></li>
             </ul>
             <div id="tabs-1">
               <!-- Accordion -->
@@ -156,32 +157,32 @@
                 </div>
                 
               </div>
-              <div id="tabs-2">Phasellus mattis tincidunt nibh. Cras orci urna, blandit id, pretium vel, aliquet ornare, felis. Maecenas scelerisque sem non nisl. Fusce sed lorem in enim dictum bibendum.</div>
+            </div>
+              <div id="tabs-2">
+                <% if (user) { %>
+                <!-- Friends who use the app -->
+                  <div class="list">
+                    <h3>Friends using this app</h3>
+                    <ul id="friends_using_app" class="friends">
+                      <% req.friends_using_app.forEach(function(friend) { %>
+                        <li>
+                          <a href="https://www.facebook.com/<%= friend.uid %>">
+                            <img src="http://graph.facebook.com/<%= friend.uid %>/picture?type=square" alt="<%= friend.name %>">
+                            <%= friend.name %>
+                          </a>
+                        </li>
+                      <% }); %>
+                    </ul>
+                  </div>
+                <!-- end friends who use the app -->
+                <% } %>
+              </div>
             </div>
           </div>
         <!-- End Accordian -->
         </section>
       <% } %>
     </main_menu>
-
-
-    <% if (user) { %>
-    <!-- Friends who use the app -->
-      <div class="list">
-        <h3>Friends using this app</h3>
-        <ul id="friends_using_app" class="friends">
-          <% req.friends_using_app.forEach(function(friend) { %>
-            <li>
-              <a href="https://www.facebook.com/<%= friend.id %>" target="_top">
-                <img src="https://graph.facebook.com/<%= friend.id %>/picture?type=square" alt="<%= friend.name %>">
-                <%= friend.name %>
-              </a>
-            </li>
-          <% }); %>
-        </ul>
-      </div>
-    <!-- end friends who use the app -->
-    <% } %>
   </body>
 </html>
 

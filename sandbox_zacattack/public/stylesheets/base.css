@@ -40,7 +40,7 @@ main_menu {
   position: absolute;
   top: 50px;
   left: 50px;
-  width: 500px;
+  width: 400px;
   overflow: hidden;
   background: url(/images/samples-bg2.png)
 }
