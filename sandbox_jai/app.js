@@ -18,19 +18,52 @@ var app = express.createServer(
   // set this to a secret value to encrypt session cookies
   express.session({ secret: process.env.SESSION_SECRET || 'secret123' }),
   require('faceplate').middleware({
-    app_id:  process.env.FACEBOOK_APP_ID || '134704860002736',
-    secret:  process.env.FACEBOOK_SECRET || '9d33607e5529952db133fb5742c336d7',
+    app_id:  process.env.FACEBOOK_APP_ID,
+    secret:  process.env.FACEBOOK_SECRET,
     scope:  'user_likes,user_photos,user_photo_video_tags'
   })
 );
 
+// Connect app to Volunteer Match 
 // Stores account information for Volunteer Match
 //var volunteerMatch = {
 //  accountName: process.env.VOLUNTEER_MATCH_ACCOUNT,
-//  accountKey: process.env.VOLUNTEER_MATCH_KEY
+//  accountKey: process.env.VOLUNTEER_MATCH_KEY,
+//  accountSecret: process.env.VOLUNTEER_MATCH_SECRET
 //};
+/*
+var name = volunteerMatch.accountName;
+var key = volunteerMatch.accountKey;
+var secret  = volunteerMatch.accountSecret;
+var path = ;
+
+function SendRequest(action, query, type) {
+var timestamp = time();
+var nonce = hash('sha1', openssl_random_pseudo_bytes(20));
+var date = date('Y-m-d\TH:i:sO', timestamp);
+var digest = base64_encode(hash('sha256', $nonce . $date . self::$key, TRUE));
+var header_array = array( 'Content-Type' => 'application/json',
+					  'Authorization' => 'WSSE profile="UsernameToken"',
+					  'X-WSSE' => 
+					  'UsernameToken Username="' . self::$username . 
+					  '", PasswordDigest="' . $digest .
+					  '", Nonce="' . $nonce .
+					  '", Created="' . $date .
+					  '"');
+var url = path + "?action=" + action;
+if (query != NULL) {
+   var json_query = JSON.stringify(query);
+   url = url + "&query=" +  urlencode(json_query);
+}  
+
+}
 
 
+function DisplayResponse() {
+
+}
+
+*/
 
 
 // Create database instance
@@ -45,43 +78,47 @@ else{
 		"port":27017,
 		"username":"",
 		"password":"",
-		"name":"users",
+		"name":"",
 		"db":"db"
 	}
     }
 
-    var generate_mongo_url = function(obj){
-	obj.hostname = (obj.hostname || 'localhost');
-	obj.port = (obj.port || 27017);
-	obj.db = (obj.db || 'db');
-	//obj.db = ('db');
-	//obj.name = (obj.name || 'users');
-
-	if(obj.username && obj.password){
-		return "mongodb://" + obj.username + ":" + obj.password + "@" + obj.hostname + ":" + obj.port + "/" + obj.db;
-		//return "mongodb://" + 'admin' + ":" + 'admin' + "@" + obj.hostname + ":" + obj.port + "/" + obj.db;
-		//console.log('Username and password given');
-		//return obj.username + ":" + obj.password + "@" + obj.hostname + ":" + obj.port + "/" + obj.db;
+//    var generate_mongo_url = function(obj){
+//	obj.hostname = (obj.hostname || 'localhost');
+//	obj.port = (obj.port || 27017);
+//	obj.db = (obj.db || 'users');
+//
+//	if(obj.username && obj.password){
+//		return "mongodb://" + obj.username + ":" + obj.password + "@" + obj.hostname + ":" + obj.port + "/" + obj.db;
+//	}
+//	else{
+//		return "mongodb://" + obj.hostname + ":" + obj.port + "/" + obj.db;
+//	}
+//    }
+//
+//var mongourl = generate_mongo_url(mongo);
+//
+    	var params = {
+		host: mongo.hostname,
+		port: mongo.port,
+		username: mongo.username,
+		password: mongo.password,
+		db: mongo.db
 	}
-	else{
-		return "mongodb://" + obj.hostname + ":" + obj.port + "/" + obj.db;
-		//console.log('Username and password NOT given');
-		//return obj.hostname + ":" + obj.port + "/" + obj.db;
-	}
-    }
-
-var mongourl = generate_mongo_url(mongo);
-console.log(mongourl);
 
 //initiate database connection.
 var collections = ["users"];
-var db = require('mongojs').connect(mongourl, collections);
+var db = require("mongojs").connect(params, collections);
 
 db.users.ensureIndex({"fb_uid" : 1}, {unique:true}, function(err, log) {
-	console.log(err);
-	console.log(log);
+	console.log('Error: ' + err);
+	console.log('log: ' + log);
 });
 
+db.users.ensureIndex({"visit_count" : 1}, function(err, log) {
+	console.log('Error: ' + err);
+	console.log('log: ' + log);
+});
 
 // listen to the PORT given to us in the environment
 var port = (process.env.VMC_APP_PORT || 3000);
@@ -124,14 +161,51 @@ function render_page(req, res) {
   });
 }
 
+var url = 'http://www.facebook.com';
+
+//function db_get_everything(id) {
+//	db.users.find({'fb_uid': id}, function(err, result) { /*Empty*/});
+//	console.log(ret);
+//}
+
 function handle_facebook_request(req, res) {
  
   // if the user is logged in
   if (req.facebook.token) {
 
   req.facebook.get('/me', function(me) {
- 	db.users.save({"fb_uid" : me.id});
-	console.log(me.id);
+// 	db.users.save({"fb_uid" : me.id});
+//	db.users.findAndModify({
+//			      query: {fb_uid: me.id},
+//			      update: {fb_uid: me_id, visit_count: 1},
+//			      upsert: true}, function(err,log){
+//			      console.log('Error - ' + err);
+//			      console.log('Log - ' + log)});
+	  //db_get_everything(me.id);
+	  console.log("trying to save.." + me.id);
+	  db.users.find({'fb_uid': me.id}, function(err, result) {
+		       if(err) console.log('error: ' + err);
+			else if(result.length == 0) {
+				console.log("Record not found");
+ 				db.users.save({"fb_uid" : me.id, "visit_count": ['http://fb.com']}, function(err,log) {console.log("Callback");});
+			}
+			else { console.log("Found, " + result);
+	  			db.users.update({'fb_uid': me.id}, {$set: {'fb_uid': me.id}, $push: {'visit_count': url}}, true, function(err,log) {console.log("Callback");});
+			}
+	  		});
+//	  db.users.update({'fb_uid': 1}, {$set: {'fb_uid': 1}, $inc: {'visit_count': 1}}, true, function(err,log) {console.log("Callback");});
+
+//	  if(cur == null) {
+//		  console.log('Object does not exist adding..' + me.id);
+//		  db.users.save({"fb_uid": me.id, "visit_count": 1}, function(err, saved) {
+//			         if( err || !saved ) console.log("User not saved");
+//			         else console.log("User saved");
+//		  });
+//	  } else {
+//		  console.log("Object found, updating.." + cur.fb_uid);
+//		  db.users.save({"fb_uid": cur.fb_uid}, {$inc: {visiting_count: 1}});
+//	  }
+	  console.log(me.id);
     });
     async.parallel([
       function(cb) {
