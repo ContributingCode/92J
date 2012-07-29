@@ -186,10 +186,23 @@
         });
       }
 
-      console.log(escape(address));
+      //console.log(escape(address));
 
       var mySplitResult = address.split(" ")
-      var city = mySplitResult[0] + '.' + mySplitResult[1];
+
+      var city = '';
+      
+      //var city = mySplitResult[0] + '.' + mySplitResult[1];
+
+      mySplitResult.forEach(function(word){
+        if(word != undefined)
+        {
+          city += word + '.';
+        }
+      });
+
+      console.log(city);
+
 
       $.ajax({
         url: 'http://localhost:3000/searchOpportunities/' + city,
