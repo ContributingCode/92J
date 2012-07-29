@@ -90,6 +90,10 @@
           collapsible: true
         });
 
+        $( "#accordion_nearby_events" ).accordion({
+          collapsible: true
+        });
+
         $('#tabs').tabs({
           css : "background: none",
         });
@@ -208,8 +212,31 @@
         type: 'GET',
         success: function(result) { 
 
-          console.log(result);
-          console.log("sup");
+          var event_data = JSON.parse(result);
+          console.log(event_data);
+
+          event_data.opportunities.forEach(function(opportunity)
+          {
+            var Org = opportunity.parentOrg.name;
+            var Title = opportunity.title;
+            var url =  decodeURIComponent(opportunity.vmUrl);
+            var description = opportunity.plaintextDescription;
+
+            console.log(url);
+
+            $('#accordion_nearby_events').append('<h3><a href="' +  url + '">' + Title  + '</a></h3><div><a href="' + url + '">More Information</a><p>' + description +'</p></div>').accordion('destroy').accordion(
+              {collapsible: true });
+          });
+          //Get events
+          //Get url, and feed to Jai for address
+          //populate map
+
+          //opportunities.plaintextdescription
+          // .parentOrg.name
+          // .title
+          // .vmURL
+
+
 
 
         },
@@ -285,12 +312,15 @@
               </div>
 
 
-              <div ide="tabs-3">
+              <div id="tabs-3">
                 <search_toolbar>
                 <form action="#" onsubmit="showAddress(this.address.value); return false">
                     <input type="text" style="width:350px" name="address" value="3401 Hillview Ave Palo Alto, CA" />
                     <input type="submit" value="Search Address" />
                 </search_toolbar>
+             <div id="accordion_nearby_events"></div>
+
+
               </div>
 
             </div>
