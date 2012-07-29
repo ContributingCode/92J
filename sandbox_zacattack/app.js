@@ -38,7 +38,7 @@ var key = volunteerMatch.accountKey;
 var path = '/api/call';
 
 // Send request to ask information
-function SendRequest(action, query) {
+function SendRequest(action, query, usrres) {
 	 if (query.length !=  0) {
 	 	 var url = path + '?action=' + action + '&key=' + key
 		  + '&query=' + JSON.stringify(query);
@@ -56,10 +56,19 @@ function SendRequest(action, query) {
        console.log('STATUS: ' + res.statusCode);	      
        console.log('HEADERS: ' + JSON.stringify(res.headers));      
        res.setEncoding('utf8');
+//       res.on('response', function(chunk){
+        var total = '';
         res.on('data', function (chunk) {
+          //res.body = '';
           console.log('Response: ' + chunk);
-	  return chunk;
-      	});
+          total += chunk;
+        });
+
+        res.on('end', function() { 
+            usrres.end(total)
+        });
+//      });
+
       });
      
      // for debugging
@@ -71,16 +80,16 @@ function SendRequest(action, query) {
 }
 
 // input the location string
-function searchOrganizations(loc) {
+function searchOrganizations(loc, res) {
 	 fd = ["name", "location", "title", "beneficiary", "vmUrl", "imageUrl"];
 	 conds = { location : loc,  nbOfResults : 20, pageNumber : 3, fieldsToDisplay : fd };
-	 return data = SendRequest('searchOrganizations', conds);
+	 data = SendRequest('searchOrganizations', conds, res);
 }
 
-function searchOpportunities(loc) {
+function searchOpportunities(loc, res) {
 	 fd = ["name", "location", "title", "beneficiary", "vmUrl", "imageUrl"];
 	 conds = { location : loc,  nbOfResults : 20, pageNumber : 3, fieldsToDisplay : fd };
-	 return data = SendRequest('searchOpportunities', conds);
+	 data = SendRequest('searchOpportunities', conds, res);
 }
 
 // Create database instance
@@ -328,16 +337,14 @@ app.get('/:fun/:loc', function(req, res){
 		   var loc = req.route.params.loc;
 		   switch(req.route.params.fun) {
 		   		 case 'searchOpportunities' : 
-		   		 data = searchOpportunities(loc);
+		   		   searchOpportunities(loc, res);
 		   		 break;
 		   		 case 'searchOrganizations' :
-		   		 data = searchOrganizations(loc);
+		   		   searchOrganizations(loc, res);
 		   		 break;
 		   		 default :
+              searchOrganizations(loc, res);
 		   }
-             data = searchOrganizations(loc);
-
-    res.send(data);
 });
 
 app.get('/', handle_facebook_request);
