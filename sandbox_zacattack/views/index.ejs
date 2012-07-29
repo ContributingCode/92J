@@ -195,7 +195,7 @@
         url: 'http://localhost:3000/searchOpportunities/' + city,
         type: 'GET',
         success: function(result) { 
-
+          $('#accordion_nearby_events').html('');
           var event_data = JSON.parse(result);
           console.log(event_data);
 
@@ -210,7 +210,7 @@
 
             //Call J's function
 
-            $('#accordion_nearby_events').append('<h3><a href="' +  url + '">' + Title  + '</a></h3><div><a href="' + url + '">More Information</a><p>' + description +'</p></div>').accordion('destroy').accordion(
+            $('#accordion_nearby_events').append('<h3><a href="' +  url + '">' + Title  + '</a></h3><div><a href="' + url + '">' + Org + '</a><p>' + description +'</p></div>').accordion('destroy').accordion(
               {collapsible: true });
           });
 
@@ -289,9 +289,7 @@
                     <input type="text" style="width:350px" id='searchbox' name="address" value="3401 Hillview Ave Palo Alto, CA" />
                     <input type="submit" value="Search Address" />
                 </search_toolbar>
-             <div id="accordion_nearby_events"></div>
-
-
+                <div id="accordion_nearby_events"></div>
               </div>
 
             </div>
