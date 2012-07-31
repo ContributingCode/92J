@@ -60,6 +60,7 @@
           xfbml      : true // parse XFBML
         });
 
+
         // Listen to the auth.login which will be called when the user logs in
         // using the Login button
         FB.Event.subscribe('auth.login', function(response) {
@@ -89,6 +90,7 @@
         $( "#accordion" ).accordion({
           collapsible: true
         });
+
 
         $( "#accordion_nearby_events" ).accordion({
           collapsible: true
@@ -225,7 +227,7 @@
 
             $('#accordion_nearby_events').append('<h3><a href="' +  url + '">' + Title  + '</a></h3><div><a href="' + url + '">' + Org + '</a><p>' + description +'</p></div>').accordion('destroy').accordion(
               {collapsible: true });
-          });
+            });
 
         },
         failure: function() { console.log("failure");}
@@ -294,15 +296,15 @@
                 <!-- end friends who use the app -->
                 <% } %>
               </div>
-
-
               <div id="tabs-3">
                 <search_toolbar>
                 <form action="#" onsubmit="showAddress(this.address.value); return false">
                     <input type="text" style="width:350px" id='searchbox' name="address" value="3401 Hillview Ave Palo Alto, CA" />
                     <input type="submit" value="Search Address" />
                 </search_toolbar>
-                <div id="accordion_nearby_events"></div>
+                <div id="scrollbox">
+                  <div id="accordion_nearby_events"></div>
+                </div>
               </div>
 
             </div>

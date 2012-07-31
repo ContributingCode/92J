@@ -10,6 +10,13 @@ body {
   font: 14px/1.5em "Lucida Grande", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   margin: 0px;
+  overflow: hidden;
+  overflow-y: hidden;
+}
+
+html {
+  overflow: hidden;
+  overflow-y: hidden;
 }
 
 a:link, a:visited {
@@ -38,18 +45,19 @@ h1 {
 
 main_menu {
   position: absolute;
-  top: 50px;
-  left: 50px;
-  width: 400px;
+  top: 0.2%;
+  left: 0.2%;
+  width: 37%;
   overflow: hidden;
-  background: url(/images/samples-bg2.png)
+  background: url(/images/samples-bg2.png);
+  overflow-y:auto;
 }
 
 
 
 main_menu #picture + div {
-  margin-left: 82px;
-  margin-bottom: 10px;
+  margin-left: 1%;
+  margin-bottom: 1%;
   background-color: transparent;
   background: transparent;
 
@@ -58,9 +66,9 @@ main_menu #picture + div {
 main_menu #picture {
   background-position: center 25%;
   background-repeat: no-repeat;
-  background-size: 64px;
+  background-size: 100%;
   float: left;
-  margin-right: 18px;
+  margin-right: 5%;
   width: 64px;
   height: 64px;
   overflow: hidden;
@@ -71,7 +79,13 @@ main_menu #picture {
 main_menu #tabs{
   background-color: transparent;
   background: transparent;
+  height: 500px;
+  overflow: scroll;
 
+}
+
+main_menu #scrollbox {
+  overflow: scroll
 }
 
 main_menu #demoHeaders {
