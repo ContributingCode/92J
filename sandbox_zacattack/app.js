@@ -1,7 +1,9 @@
 var async   = require('async');
 var express = require('express');
-var util    = require('util');
 var http = require('http');  
+var jsdom = require('jsdom');
+var request = require('request');
+
 
 //var jQuery = require('jQuery');
 
@@ -56,19 +58,29 @@ function SendRequest(action, query, usrres) {
        console.log('STATUS: ' + res.statusCode);	      
        console.log('HEADERS: ' + JSON.stringify(res.headers));      
        res.setEncoding('utf8');
-//       res.on('response', function(chunk){
         var total = '';
         res.on('data', function (chunk) {
-          //res.body = '';
-          console.log('Response: ' + chunk);
           total += chunk;
         });
 
         res.on('end', function() { 
-            usrres.end(total)
-        });
-//      });
+	     var formatted_data = JSON.parse(total);
+	     var count = 0;
+	     formatted_data.opportunities.forEach(function(opportunity)
+	     {
+		get_address(decodeURIComponent(opportunity.vmUrl), function (address)
+			      {
+				      opportunity.address = address;
+				      count++;
+				      if(count >= formatted_data.opportunities.length)
+					{
+						console.log(formatted_data);
+						usrres.end(JSON.stringify(formatted_data));
+					}
 
+			      });
+	     });
+        });
       });
      
      // for debugging
@@ -109,21 +121,6 @@ else{
 	}
     }
 
-//    var generate_mongo_url = function(obj){
-//	obj.hostname = (obj.hostname || 'localhost');
-//	obj.port = (obj.port || 27017);
-//	obj.db = (obj.db || 'users');
-//
-//	if(obj.username && obj.password){
-//		return "mongodb://" + obj.username + ":" + obj.password + "@" + obj.hostname + ":" + obj.port + "/" + obj.db;
-//	}
-//	else{
-//		return "mongodb://" + obj.hostname + ":" + obj.port + "/" + obj.db;
-//	}
-//    }
-//
-//var mongourl = generate_mongo_url(mongo);
-//
     var params = {
 		host: mongo.hostname,
 		port: mongo.port,
@@ -187,8 +184,6 @@ function render_page(req, res) {
   });
 }
 
-var url = 'http://www.facebook.com';
-
 
 function spit_details(req,res) {
 	console.log('ID  = ' + req.params.id);
@@ -233,28 +228,6 @@ function spit_details(req,res) {
 		//});
 	//}
 }
-
-/*
-function init_details(userid, return_value) {
-	var id = userid;
-	db.users.find({'fb_uid': id}, function(err, result) {
-		if(err) {
-			//Somethings broken
-			console.log('error: ' + err);
-		} else if(result.length == 0) {
-			//Couldn't find ...hmmm must add you
-			console.log('Record not found' + result);
-			db.users.save({'fb_uid' : id, 'links': ['http://fb.com']}, function(err,log) {
-				console.log('Callback');
-				return_value = log;
-			});
-		} else { 
-      console.log("Found, " + JSON.stringify(result));
-			//Found .. here are your embarrasing details
-      return_value = result;
-    }
-}
-*/
 
 
 var debug_event = { location: 'vmware',
@@ -327,13 +300,6 @@ function handle_facebook_request(req, res) {
 
 // /searchOpportunities?loc
 app.get('/:fun/:loc', function(req, res){
-		   // location parser
-		   // TODO : city, region , country
-		   // var loc = {
-		   //     city : req.params[1],
-		   //     region : req.params[2],
-		   //     country : req.params[3]
-		   // } 
 		   var loc = req.route.params.loc;
 		   switch(req.route.params.fun) {
 		   		 case 'searchOpportunities' : 
@@ -346,6 +312,39 @@ app.get('/:fun/:loc', function(req, res){
               searchOrganizations(loc, res);
 		   }
 });
+
+
+
+
+function get_address(url, callback) {
+        request({uri: url}, function(err, response, body){
+		// Checks if page was found
+                if(err && response.statusCode !== 200){console.log('Request error.');}
+                //Send the body param as the HTML code we will parse in jsdom
+		//also tell jsdom to attach jQuery in the scripts
+		jsdom.env({
+                        html: body,
+                        scripts: ['http://code.jquery.com/jquery-1.6.min.js']
+                }, function(err, window){
+			//Use jQuery just as in any regular HTML page
+                        var $ = window.jQuery
+                        , $body = $('body')
+                        , $videos = $body.find('.section.details');
+
+			//I will use regular jQuery selectors
+			var s = $($videos[0]).find('address.adr').text();
+			s = s.replace(/(^\s*)|(\s*$)/gi,"");
+			s = s.replace(/[ ]{2,}/gi," ");
+			s = s.replace(/\n /,"\n");
+			var address = s;
+			//console.log(address);
+			callback(address);
+                });
+        });
+}
+
+
+
 
 app.get('/', handle_facebook_request);
 app.post('/', handle_facebook_request);

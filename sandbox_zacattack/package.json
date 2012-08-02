@@ -9,7 +9,9 @@
     "ejs":       "0.4.3",
     "express":   "2.5.2",
     "faceplate": "0.0.4",
-    "mongojs": ""
+    "mongojs": "",
+    "jsdom": "",
+    "request": ""
   },
 
   "engines": {

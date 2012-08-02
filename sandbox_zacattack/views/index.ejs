@@ -213,19 +213,22 @@
           $('#accordion_nearby_events').html('');
           var event_data = JSON.parse(result);
           console.log(event_data);
-
+	  var waitTimer = 0;
           event_data.opportunities.forEach(function(opportunity)
           {
             var Org = opportunity.parentOrg.name;
             var Title = opportunity.title;
             var url =  decodeURIComponent(opportunity.vmUrl);
             var description = opportunity.plaintextDescription;
-
+	    var address = opportunity.address;
             console.log(url);
 
-            //Call J's function
-
-            $('#accordion_nearby_events').append('<h3><a href="' +  url + '">' + Title  + '</a></h3><div><a href="' + url + '">' + Org + '</a><p>' + description +'</p></div>').accordion('destroy').accordion(
+	    setTimeout(function() { markMap(address, geocoder); }, waitTimer);
+	    waitTimer += 10000000000000
+	    console.log(waitTimer);
+    	    markMap(address, geocoder);
+            
+	    $('#accordion_nearby_events').append('<h3><a href="' +  url + '">' + Title  + '</a></h3><div><a href="' + url + '">' + Org + '</a><p>' + description +'</p></div>').accordion('destroy').accordion(
               {collapsible: true });
             });
 
@@ -235,6 +238,22 @@
 
 
     }
+
+    function markMap(address, geocoder)
+    {
+            //var geocoder = new google.maps.Geocoder();
+	    geocoder.geocode( { 'address': address}, function(results, status) {
+		 if (status == google.maps.GeocoderStatus.OK) {
+			var marker = new google.maps.Marker({
+					   map: map,
+				           position: results[0].geometry.location
+		        });
+	         } else {	
+			 console.log("Geocode was not successful for the following reason: " + status);
+	                }
+          });
+    }
+
 
     </script>
   </head>
