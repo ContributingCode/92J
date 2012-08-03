@@ -223,10 +223,13 @@
 	    var address = opportunity.address;
             console.log(url);
 
-	    setTimeout(function() { markMap(address, geocoder); }, waitTimer);
-	    waitTimer += 10000000000000
+	    
+	    waitTimer += 1000;
+	    setTimeout(function() {
+		    markMap(address, geocoder);
+	    }, waitTimer);
 	    console.log(waitTimer);
-    	    markMap(address, geocoder);
+    	    //markMap(address, geocoder);
             
 	    $('#accordion_nearby_events').append('<h3><a href="' +  url + '">' + Title  + '</a></h3><div><a href="' + url + '">' + Org + '</a><p>' + description +'</p></div>').accordion('destroy').accordion(
               {collapsible: true });
