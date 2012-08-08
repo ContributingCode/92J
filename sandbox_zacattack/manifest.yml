@@ -1,16 +1,16 @@
---- 
-applications: 
-  .: 
-    mem: 64M
-    name: fb-login-92j
-    instances: 1
-    url: ${name}.${target-base}
-    framework: 
+---
+applications:
+  .:
+    name: caretogetherbeta
+    framework:
       name: node
-      info: 
+      info:
         mem: 64M
         description: Node.js Application
         exec: 
-    services: 
-      mongodb-92j: 
+    url: ${name}.${target-base}
+    mem: 64M
+    instances: 1
+    services:
+      mongocare:
         type: mongodb

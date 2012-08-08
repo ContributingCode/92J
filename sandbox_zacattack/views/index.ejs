@@ -286,7 +286,7 @@
                     <!-- Accordian -->
                     <div id="tabs">
                         <h2 class="demoHeaders">
-                            <p id="picture" style="background-image: url(https://graph.facebook.com/<%=user.id%>/picture?type=normal)"></p>
+                            <p id="picture" style="background-image: url(https://graph.facebook.com/<%=user.id%>/picture?type=normal); background-size: contain;"></p>
                             <div>
                                 <h1>
                                     <strong>
@@ -343,7 +343,7 @@
                         <div id="tabs-3">
                             <search_toolbar>
                                 <form action="#" onsubmit="showAddress(this.address.value); return false">
-                                    <input type="text" style="width:350px" id='searchbox' name="address" value="3401 Hillview Ave Palo Alto, CA"
+                                    <input type="text" style="width:98%" id='searchbox' name="address" value="3401 Hillview Ave Palo Alto, CA"
                                     />
                                     <input type="submit" value="Search Address" />
                             </search_toolbar>
