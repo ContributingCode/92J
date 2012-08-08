@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />-->
+
+    <title><%= app.name %></title>
+    <link rel="stylesheet" href="stylesheets/screen.css" media="Screen" type="text/css" />
+    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-width: 480px), only screen and (max-device-width: 480px)" type="text/css" />
+
+    <!--[if IEMobile]>
+    <link rel="stylesheet" href="mobile.css" media="screen" type="text/css"  />
+    <![endif]-->
+
+    <!-- These are Open Graph tags.  They add meta data to your  -->
+    <!-- site that facebook uses when your content is shared     -->
+    <!-- over facebook.  You should fill these tags in with      -->
+    <!-- your data.  To learn more about Open Graph, visit       -->
+    <!-- 'https://developers.facebook.com/docs/opengraph/'       -->
+    <meta property="og:title" content="<%= app.name %>" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="<%= url() %>" />
+    <meta property="og:image" content="<%= url('/logo.png') %>" />
+    <meta property="og:site_name" content="<%= app.name %>" />
+    <meta property="og:description" content="Encouraging volunteer work by making it easy to brag" />
+    <meta property="fb:app_id" content="<%= app.id %>" />
+
+
+    <!-- jQuery UI definitions -->
+    <link rel="stylesheet" href="stylesheets/flick/jquery-ui-1.8.22.custom.css" media="Screen" type="text/css" />
+    <script type="text/javascript" src="/scripts/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="/scripts/jquery-ui-1.8.22.custom.min.js"></script>
+    <!-- end definitions -->
+
+
+    <script type="text/javascript">
+      function logResponse(response) {
+        if (console && console.log) {
+          console.log('The response was', response);
+        }
+      }
+
+    </script>
+
+    <!--[if IE]>
+      <script type="text/javascript">
+        var tags = ['header', 'section'];
+        while(tags.length)
+          document.createElement(tags.pop());
+      </script>
+    <![endif]-->
+
+  </head>
+  <body>
+    <div id="fb-root"></div>
+    <script type="text/javascript">
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '<%= app.id %>', // App ID
+          channelUrl : '<%= url_no_scheme('/channel.html') %>', // Channel File
+          status     : true, // check login status
+          cookie     : true, // enable cookies to allow the server to access the session
+          xfbml      : true // parse XFBML
+        });
+
+        // Listen to the auth.login which will be called when the user logs in
+        // using the Login button
+        FB.Event.subscribe('auth.login', function(response) {
+          // We want to reload the page now so PHP can read the cookie that the
+          // Javascript SDK sat. But we don't want to use
+          // window.location.reload() because if this is in a canvas there was a
+          // post made to this page and a reload will trigger a message to the
+          // user asking if they want to send data again.
+          window.location = window.location;
+        });
+
+        FB.Canvas.setAutoGrow();
+      };
+
+      // Load the SDK Asynchronously
+      (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/all.js";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+
+      <!--  My custom elements -->
+      $(function() {
+        $( "#accordion" ).accordion({
+          collapsible: true
+        });
+      });
+
+
+    </script>
+
+    <header class="clearfix">
+      <% if (user) { %>
+      <p id="picture" style="background-image: url(https://graph.facebook.com/<%= user.id %>/picture?type=normal)"></p>
+
+      <div>
+        <h1><strong><%= user.name %></strong></h1>
+      </div>
+
+
+
+
+      <% } %>
+    </header>
+
+
+    <% if (user) { %>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 80% }
+      body { height: 80%; margin: 20; padding: 20 }
+      #map_canvas { height: 100% }
+    </style>
+    <script type="text/javascript"
+      src="http://maps.googleapis.com/maps/api/js?key=AIzaSyB0Td6aNPonQtxz_sr30TDPETU2fzma78s&sensor=true">
+    </script>
+    <script type="text/javascript">
+      function initialize() {
+        var mapOptions = {
+          center: new google.maps.LatLng(-34.397, 150.644),
+          zoom: 8,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("map_canvas"),
+            mapOptions);
+      }
+    </script>
+  <body onload="initialize()">
+    <div id="map_canvas" style="width:50%; height:50%"></div>
+  </body>
+    
+    
+    
+      <section>
+          <!-- Accordian -->
+
+      <div class="demo">
+
+          <div id="accordion">
+            <h3><a href="#">Section 1</a></h3>
+            <div>
+              <p>Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.</p>
+            </div>
+            <h3><a href="#">Section 2</a></h3>
+            <div>
+              <p>Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum sit amet purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris turpis porttitor velit, faucibus interdum tellus libero ac justo. Vivamus non quam. In suscipit faucibus urna. </p>
+            </div>
+            <h3><a href="#">Section 3</a></h3>
+            <div>
+              <p>Nam enim risus, molestie et, porta ac, aliquam ac, risus. Quisque lobortis. Phasellus pellentesque purus in massa. Aenean in pede. Phasellus ac libero ac tellus pellentesque semper. Sed ac felis. Sed commodo, magna quis lacinia ornare, quam ante aliquam nisi, eu iaculis leo purus venenatis dui. </p>
+              <ul>
+                <li>List item one</li>
+                <li>List item two</li>
+                <li>List item three</li>
+              </ul>
+            </div>
+            <h3><a href="#">Section 4</a></h3>
+            <div>
+              <p>Cras dictum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lacinia mauris vel est. </p><p>Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. </p>
+            </div>
+          </div>
+
+          </div>
+
+
+          <!-- End Accordian -->
+      </section>
+    <% } %>
+
+
+    <% if (user) { %>
+
+    <!-- Friends who use the app -->
+      <div class="list">
+        <h3>Friends using this app</h3>
+        <ul id="friends_using_app" class="friends">
+          <% req.friends_using_app.forEach(function(friend) { %>
+            <li>
+              <a href="https://www.facebook.com/<%= friend.id %>" target="_top">
+                <img src="https://graph.facebook.com/<%= friend.id %>/picture?type=square" alt="<%= friend.name %>">
+                <%= friend.name %>
+              </a>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+    <!-- end friends who use the app -->
+
+
+
+    <% } %>
+  </body>
+</html>
+

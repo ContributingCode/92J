@@ -1,0 +1,367 @@
+
+<!DOCTYPE html>
+<html xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+    
+    <head>
+        <meta charset="utf-8" />
+        <!--<meta name="viewport" content="width=device-width, initial-scale=1.0,
+        maximum-scale=2.0, user-scalable=yes" />-->
+        <title>
+            <%= app.name %>
+        </title>
+        <link rel="stylesheet" href="stylesheets/screen.css" media="Screen" type="text/css"
+        />
+        <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-width: 480px), only screen and (max-device-width: 480px)"
+        type="text/css" />
+        <!--[if IEMobile]>
+            <link rel="stylesheet" href="mobile.css" media="screen" type="text/css"
+            />
+        <![endif]-->
+        <!-- These are Open Graph tags. They add meta data to your -->
+        <!-- site that facebook uses when your content is shared -->
+        <!-- over facebook. You should fill these tags in with -->
+        <!-- your data. To learn more about Open Graph, visit -->
+        <!-- 'https://developers.facebook.com/docs/opengraph/' -->
+        <meta property="og:title" content="<%= app.name %>" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="<%= url() %>" />
+        <meta property="og:image" content="<%= url('/logo.png') %>" />
+        <meta property="og:site_name" content="<%= app.name %>" />
+        <meta property="og:description" content="Encouraging volunteer work by making it easy to brag"
+        />
+        <meta property="fb:app_id" content="<%= app.id %>" />
+        <!-- jQuery UI definitions -->
+        <link rel="stylesheet" href="stylesheets/flick/jquery-ui-1.8.22.custom.css"
+        media="Screen" type="text/css" />
+        <script type="text/javascript" src="/scripts/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="/scripts/jquery-ui-1.8.22.custom.min.js"></script>
+        <!-- end definitions -->
+        <!-- Google Map API -->
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyB0Td6aNPonQtxz_sr30TDPETU2fzma78s&sensor=true"></script>
+        <!-- End Google Map API-->
+        <!--[if IE]>
+            <script type="text/javascript">
+                var tags = ['header', 'section'];
+                while (tags.length)
+                 document.createElement(tags.pop());
+            </script>
+        <![endif]-->
+        <!-- Google and Facebook Magic -->
+        <div id="fb-root"></div>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no"
+        />
+        <style type="text/css">
+            html {
+                height: 100%
+            }
+            body {
+                height: 100%;
+                margin: 0;
+                padding: 0
+            }
+            #map_canvas {
+                height: 100%
+            }
+        </style>
+        <!-- End the Magic -->
+        <script type="text/javascript">
+            window.fbAsyncInit = function () {
+                FB.init({
+                    appId: '<%= app.id %>', // App ID
+                    channelUrl: '<%= url_no_scheme('/channel.html') %>', // Channel File
+                    status: true, // check login status
+                    cookie: true, // enable cookies to allow the server to access the session
+                    xfbml: true // parse XFBML
+                });
+
+
+                // Listen to the auth.login which will be called when the user logs in
+                // using the Login button
+                FB.Event.subscribe('auth.login', function (response) {
+                    // We want to reload the page now so PHP can read the cookie that the
+                    // Javascript SDK sat. But we don't want to use
+                    // window.location.reload() because if this is in a canvas there was a
+                    // post made to this page and a reload will trigger a message to the
+                    // user asking if they want to send data again.
+                    window.location = window.location;
+                });
+
+                FB.Canvas.setAutoGrow();
+            };
+
+            // Load the SDK Asynchronously
+            (function (d, s, id) {
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) return;
+                js = d.createElement(s);
+                js.id = id;
+                js.src = "//connect.facebook.net/en_US/all.js";
+                fjs.parentNode.insertBefore(js, fjs);
+            }(document, 'script', 'facebook-jssdk'));
+
+            <!--  My custom elements -->
+
+            $(document).ready(function () {
+                $("#accordion").accordion({
+                    collapsible: true
+                });
+
+
+                $("#accordion_nearby_events").accordion({
+                    collapsible: true
+                });
+
+                $('#tabs').tabs({
+                    css: "background: none",
+                });
+
+            });
+
+            //Map Initialization. TODO: Center map at startup to more
+            // relevant location
+            var map = null;
+
+            function initialize() {
+                var mapOptions = {
+                    center: new google.maps.LatLng(-34.397, 150.644),
+                    zoom: 8,
+                    disableDefaultUI: true,
+                    zoomControl: true,
+                    zoomControlOptions: {
+                        style: google.maps.ZoomControlStyle.SMALL,
+                        position: google.maps.ControlPosition.TOP_RIGHT
+                    },
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                map = new google.maps.Map(document.getElementById("map_canvas"),
+                mapOptions);
+
+                centerOnCurrentPosition(map);
+            }
+
+            function centerOnCity(loc) {
+
+                var mapOptions = {
+                    center: new google.maps.LatLng(-34.397, 150.644),
+                    zoom: 8,
+                    disableDefaultUI: true,
+                    zoomControl: true,
+                    zoomControlOptions: {
+                        style: google.maps.ZoomControlStyle.SMALL,
+                        position: google.maps.ControlPosition.TOP_RIGHT
+                    },
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                var map = new google.maps.Map(document.getElementById("map_canvas"),
+                mapOptions);
+
+                geocoder = new google.maps.Geocoder();
+                geocoder.geocode({
+                    'address': loc
+                }, function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        map.setCenter(results[0].geometry.location);
+                    }
+                });
+            }
+
+            function centerOnCurrentPosition(map) {
+
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    console.log(position.coords.latitude);
+                    console.log(position.coords.longitude);
+                    map.setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+
+                    //var marker=new google.maps.Marker({position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),map:map,title:"You are here!"});
+                },
+
+                function (position) {
+                    console.log("sucks");
+                });
+            }
+
+	    $("#loading").ajaxStart(function(){
+		$(this).show();
+	    }).ajaxStop(function(){
+		$(this).hide();
+	     });
+
+            function showAddress(address) {
+                var geocoder = new google.maps.Geocoder();
+                if (geocoder) {
+                    geocoder.geocode({
+                        'address': address
+                    },
+
+                    function (results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            var loc = results[0].geometry.location;
+                            map.setCenter(results[0].geometry.location);
+                            // use loc.lat(), loc.lng()
+                            var marker = new google.maps.Marker({
+                                position: new google.maps.LatLng(loc),
+                                map: map
+                            });
+
+                            google.maps.event.addListener(marker, 'click', (function (marker) {
+                                return function () {
+                                    infowindow.setContent(address);
+                                    infowindow.open(map, marker);
+                                }
+                            }));
+                        } else {
+                            alert("Not found: " + status);
+                        }
+                    });
+                }
+
+                //console.log(escape(address));
+
+                var mySplitResult = address.split(" ")
+
+                var city = '';
+
+                //var city = mySplitResult[0] + '.' + mySplitResult[1];
+
+                mySplitResult.forEach(function (word) {
+                    if (word != undefined) {
+                        city += word + '.';
+                    }
+                });
+
+                console.log(city);
+
+		
+		$('#accordion_nearby_events').html('<p><img src="http://i.stack.imgur.com/FhHRx.gif" /> Please Wait</p>')
+                $.ajax({
+                    url: 'http://localhost:3000/searchOpportunities/' + city,
+                    type: 'GET',
+                    success: function (result) {
+                        $('#accordion_nearby_events').html('');
+                        var event_data = JSON.parse(result);
+                        console.log(event_data);
+                        var waitTimer = 0;
+                        event_data.opportunities.forEach(function (opportunity) {
+                            var Org = opportunity.parentOrg.name;
+                            var Title = opportunity.title;
+                            var url = decodeURIComponent(opportunity.vmUrl);
+                            var description = opportunity.plaintextDescription;
+                            var address = opportunity.address;
+                            console.log(url);
+                            markMap(address, geocoder);
+                            //markMap(address, geocoder);
+
+                            $('#accordion_nearby_events').append('<h3><a href="' + url + '">' + Title + '</a></h3><div><a href="' + url + '">' + Org + '</a><p>' + description + '</p></div>').accordion('destroy').accordion({
+                                collapsible: true
+                            });
+                        });
+
+                    },
+                    failure: function () {
+			$('#accordion_nearby_events').html('');
+                        console.log("failure");
+                    }
+                });
+
+
+            }
+
+            function markMap(address, geocoder) {
+                //var geocoder = new google.maps.Geocoder();
+                geocoder.geocode({
+                    'address': address
+                }, function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        var marker = new google.maps.Marker({
+                            map: map,
+                            position: results[0].geometry.location
+                        });
+                    } else {
+                        setTimeout(function () {
+                            markMap(address, geocoder);
+                        }, 200);
+                    }
+                });
+            }
+        </script>
+    </head>
+    
+    <body onload="initialize()">
+        <div id="map_canvas" style="style=position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 0;"></div>
+        <main_menu>
+            <% if (user) { %>
+                <section>
+                    <!-- Accordian -->
+                    <div id="tabs">
+                        <h2 class="demoHeaders">
+                            <p id="picture" style="background-image: url(https://graph.facebook.com/<%=user.id%>/picture?type=normal); background-size: contain;"></p>
+                            <div>
+                                <h1>
+                                    <strong>
+                                        <%= user.name %>
+                                    </strong>
+                                </h1>
+                            </div>
+                        </h2>
+                        <ul>
+                            <li>
+                                <a href="#tabs-1">Works</a>
+                            </li>
+                            <li>
+                                <a href="#tabs-2">Friends</a>
+                            </li>
+                            <li>
+                                <a href="#tabs-3">Nearby Events</a>
+                            </li>
+                        </ul>
+                        <div id="tabs-1">
+                            <!-- Accordion -->
+                            <%if(!req.user_events || req.user_events.length == 0) { %>
+                                <h3>You Have Participated In No Events. Get Out There!</h3>
+                            <% } else { %>
+                                    <div id="accordion">
+                                        <%req.user_events.forEach(function(event) { %>
+                                            <h3>
+                                                <a href="#"> <%= event.title %> </a>
+                                            </h3>
+                                            <div>
+                                                <a href="http://<%= event.vmURL %>"> <%= event.vmURL %> </a>
+                                            </div>
+                                    </div>
+                            <% }); }%>
+                            <!--End Accordion -->
+                        </div>
+                        <div id="tabs-2">
+                            <!-- Friends who use the app -->
+                            <div class="list">
+                                <h3>Friends using this app</h3>
+                                <ul id="friends_using_app" class="friends">
+                                    <% req.friends_using_app.forEach(function(friend) { %>
+                                        <li>
+                                            <a href="https://www.facebook.com/<%= friend.uid %>">
+                                                <img src="http://graph.facebook.com/<%= friend.uid %>/picture?type=square" alt="<%= friend.name %>">
+                                                <%= friend.name %>
+                                             </a>
+                                        </li>
+                                    <% }); %>
+                                </ul>
+                            </div>
+                            <!-- end friends who use the app -->
+                        </div>
+                        <div id="tabs-3">
+                            <search_toolbar>
+                                <form action="#" onsubmit="showAddress(this.address.value); return false">
+                                    <input type="text" style="width:98%" id='searchbox' name="address" value="3401 Hillview Ave Palo Alto, CA"
+                                    />
+                                    <input type="submit" value="Search Address" />
+                            </search_toolbar>
+                            <div id="scrollbox">
+                                <div id="accordion_nearby_events"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            <% } %>
+        </main_menu>
+    </body>
+</html>

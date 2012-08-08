@@ -10,7 +10,7 @@ git clone https://github.com/ContributingCode/92J.git
 
 This app was built with node.js, so you'll need to download it from here: http://nodejs.org/
 
-Once you've downloaded it, simply open a terminal in the directory where you cloned the repo (for now, navigate to the sandbox_zacattack folder) and type
+Once you've downloaded it, simply open a terminal in the main folder located in the directory where you cloned the repo and type
 
   npm install
 

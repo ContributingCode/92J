@@ -1,0 +1,16 @@
+Test file for deploy node.js app on cloudfoundry with mongoDB service.
+
+How to run this example (docs.cloudfoundry.com/services/mongodb/nodejs-mongodb.html)
+1. run and test locally (optional)
+node app.js
+curl localhost:3000 (new terminal)
+
+2. deploy it on cloudfoundry
+vmc mongo-node (or the name you like)
+(select mongoDB services)
+
+3. test it
+curl mongo-node(or the name you input).cloudfoundry.com
+curl mongo-node(or the name you input).cloudfoundry.com/history
+
+Enjoy!
