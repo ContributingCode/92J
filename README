@@ -1,6 +1,6 @@
 Volunteer Opportunity Tracking
 
-This repo is a web app that allows users to keep a profile of what volunteer opportunities they've participated in, and also makes it easy for users to find such opportunities, and share them through facebook.
+This repo is a web app that allows users to keep a profile of what volunteer opportunities they've participated in, and also makes it easy for users to find such opportunities via the volunteermatch publis API, and share them through facebook.
 
 The application was built to run on cloudfoundry, and is easily deployed in either a cloud or localhost environment.
 
