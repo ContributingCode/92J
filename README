@@ -1,22 +1,42 @@
-API for tracking community outreach events
+Volunteer Opportunity Tracking
 
-Feature and Task List:
-	-Getting relevant event data
-	-Displaying Data
-	-Participation Analytics
-	-Geolocation results
-	-Facebook integration
-		a. Logon
-		b. Comments
-		c. "share"
-	-Robust framework (html form template)
-	-Check-in (optional)
+This repo is a web app that allows users to keep a profile of what volunteer opportunities they've participated in, and also makes it easy for users to find such opportunities, and share them through facebook.
 
-Possible sites for scraping:
-	-Habitat for humanity (assigned to Zac)
-	-Sierra club
-	-Code for America
-	-Local organizations
+The application was built to run on cloudfoundry, and is easily deployed in either a cloud or localhost environment.
 
-Scraping??
-	-Internal to Node server app, performs scrape twice daily at non-peak hours
+To set up the app, simply run
+
+git clone https://github.com/ContributingCode/92J.git
+
+This app was built with node.js, so you'll need to download it from here: http://nodejs.org/
+
+Once you've downloaded it, simply open a terminal in the directory where you cloned the repo (for now, navigate to the sandbox_zacattack folder) and type
+
+  npm install
+
+This will resolve the dependencies ot the application.
+
+Afterward, you will need to set up an instance of mongodb.
+
+If you are using cloudfoundry, find out more here:
+
+http://docs.cloudfoundry.com/services/mongodb/nodejs-mongodb.html
+
+Or go to www.mongodb.org to find out how to set up a local instance.
+
+After the database is set up, you will need to acquire a facebook API key and secret, as well as a volunteermatch api secret.
+
+Once you have these, simply run these commands from your terminal:
+
+   export FACEBOOK_APP_ID=<facebook app id>
+   export FACEBOOK_SECRET=<facebook app secret>
+   export VOLUNTEER_MATCH_ACCOUNT=<volunteer match API account name>
+   export VOLUNTEER_MATCH_KEY=<volunteer match API secret>
+
+You could also add these lines to your .profile file so that you don't lose the environment variables everytime you close your terminal.
+
+When you deploy to cloudfoundry, you'll need to set these variables on the cloud machine like so:
+
+   vmc env-add <appname> FACEBOOK_APP_ID=<facebook app id>
+
+And then you should be ready to go!  Simply point the facebook app you created to where the application is running (either localhost:3000/ or <appname>.cloudfoundry.com) and go to town :)
