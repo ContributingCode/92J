@@ -40,3 +40,41 @@ When you deploy to cloudfoundry, you'll need to set these variables on the cloud
    vmc env-add <appname> FACEBOOK_APP_ID=<facebook app id>
 
 And then you should be ready to go!  Simply point the facebook app you created to where the application is running (either localhost:3000/ or <appname>.cloudfoundry.com) and go to town :)
+
+
+Scheduled Improvements:
+
+Cacheing of Opportunity Search:
+   -Server side, save searches by city, updating once per day.
+   -User searches for things in their area.  The server looks at what city
+    they are searching in, and refers to a list of cities that were stored.
+    If the city is new, It will add the city to the list and do a normal search,
+    cacheing the result.  Every night, the server will look at the list of cities,
+    and iterate through them with API requests, storing the results.
+   -Solves the issue of limited weekly requests, and speeds up user experience.
+
+Check Ins and Point System:
+   -For events with a date and place, a check in feature is available to add them to
+    your profile.
+  -MOST events however are recurring.
+  -Single events get 5 points, recurring events get 2 points per checkin. This will help you rack up
+   if you've become a part of an organization with regular work.
+
+The Ability to favorite Opportunites:
+  -It'd be handy to save events, so a favoriting system should be made
+
+Mechanism for Publishing Profile or viewing Profiles:
+  -Friends list only links to facebook proile.  Clicking a friend should show you their 
+   profile.
+  -Possible publishing to LinkedIn?
+  -Need to make Profiles queryable.
+
+BUGS!!
+
+If you perform 20,000 queryies in a week, volunteer match bans you :(
+
+Tabs on Tabular menu go to next line on some screen sizes
+
+When app is used on facebook canvas there are some scrolling issues.  All scrolling should be disbled, but facebook is a stubborn beast.
+
+
