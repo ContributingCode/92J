@@ -219,6 +219,24 @@ function addUser(id) {
     });
 }
 
+function favoriteEvent(id, event){
+     db.users.update({'fb_uid': id}, {$addToSet:{"favorites": event}}, function(err, log){
+        if(err)
+            console.log(log);
+        else
+	   console.log('User: ' + id + ' favorited event: ' + event);
+     });
+}
+
+function unfavoriteEvent(id, event){
+    db.users.update({'fb_uid': id}, {$pull:{"favorites": event}}, function(err, log){
+        if(err)
+            console.log(log);
+        else
+	   console.log('User: ' + id + ' unfavorited event: ' + event);
+     });
+}
+
 
 var debug_event = {
     location: 'vmware',
@@ -279,6 +297,7 @@ function handle_facebook_request(req, res) {
         function (cb) {
             req.facebook.get('/me', function (me) {
 		addUser(me.id);
+		unfavoriteEvent(me.id, debug_event);
                 db.users.find({
                     'fb_uid': me.id
                 }, function (err, result) {
