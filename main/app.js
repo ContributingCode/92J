@@ -196,7 +196,7 @@ function render_page(req, res) {
     });
 }
 
-
+// Database helper functions
 function addUser(id) {
     console.log('ID  = ' + id);
     //Searching if you exist..
@@ -210,7 +210,8 @@ function addUser(id) {
             //Couldn't find ...hmmm must add you
             console.log('Record not found' + result);
             db.users.save({
-                'fb_uid': id
+                'fb_uid': id,
+		'points': 0
             }, function (err, log) {
                 var body = 'You are new, but dont worry everybody here was once new but now its their home coz you never leave ...Hotel California';
                 console.log(body);
@@ -236,6 +237,34 @@ function unfavoriteEvent(id, event){
 	   console.log('User: ' + id + ' unfavorited event: ' + event);
      });
 }
+
+function addEventAsAttended(id, event){
+      db.users.update({'fb_uid': id}, {$addToSet:{"attended": event}}, function(err, log){
+        if(err)
+            console.log(log);
+        else
+	   console.log('User: ' + id + ' attended event: ' + event);
+     });   
+}
+
+function removeUser(id){
+     db.users.remove({'fb_uid': id}, function(err, log) {
+        if(err)
+            console.log(log);
+        else
+	   console.log('User: ' + id + ' has left the party.');    
+     });
+}
+
+function addPoints(id, points){
+     db.users.update({'fb_uid': id}, {$inc:{"points": points}}, function(err, log){
+        if(err)
+            console.log(log);
+        else
+	   console.log('User: ' + id + ' earned ' + points + ' points!!');
+     });   
+}
+
 
 
 var debug_event = {
