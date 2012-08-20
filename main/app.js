@@ -1,18 +1,8 @@
-
 var async = require('async');
 var express = require('express');
 var http = require('http');
 var jsdom = require('jsdom');
 var request = require('request');
-
-
-//var jQuery = require('jQuery');
-
-
-// Example useage of getJSON.  Important for querying Volunteer Match
-//jQuery.getJSON('http://twitter.com/status/user_timeline/treason.json?count=10&callback=?',function(data) {
-//  console.log(data);
-//});
 
 // create an express webserver
 var app = express.createServer(
@@ -20,6 +10,7 @@ express.logger(),
 express.static(__dirname + '/public'),
 express.bodyParser(),
 express.cookieParser(),
+
 // set this to a secret value to encrypt session cookies
 express.session({
     secret: process.env.SESSION_SECRET || 'secret123'
@@ -37,23 +28,19 @@ var volunteerMatch = {
     accountKey: process.env.VOLUNTEER_MATCH_KEY
 };
 
-var name = volunteerMatch.accountName;
-var key = volunteerMatch.accountKey;
-var path = '/api/call';
-
 // Send request to ask information
-function SendRequest(action, query, usrres) {
+function sendRequest(action, query, usrres) {
+    var path = '/api/call';
     if (query.length != 0) {
-        var url = path + '?action=' + action + '&key=' + key + '&query=' + JSON.stringify(query);
+        var url = path + '?action=' + action + '&key=' + volunteerMatch.accountKey + '&query=' + JSON.stringify(query);
     } else {
-        var url = path + '?action=' + action + '&key=' + key;
+        var url = path + '?action=' + action + '&key=' + volunteerMatch.accountKey;
     }
     console.log('url:, ' + url);
     var get_options = {
         host: 'www.volunteermatch.org',
         path: url,
     };
-
 
     var get_req = http.get(get_options, function (res) {
         console.log('STATUS: ' + res.statusCode);
@@ -94,22 +81,18 @@ function searchOrganizations(loc, res) {
     fd = ["name", "location", "title", "beneficiary", "vmUrl", "imageUrl"];
     conds = {
         location: loc,
-        nbOfResults: 20,
-        pageNumber: 3,
         fieldsToDisplay: fd
     };
-    data = SendRequest('searchOrganizations', conds, res);
+    data = sendRequest('searchOrganizations', conds, res);
 }
 
 function searchOpportunities(loc, res) {
     fd = ["name", "location", "title", "beneficiary", "vmUrl", "imageUrl"];
     conds = {
         location: loc,
-        nbOfResults: 20,
-        pageNumber: 3,
         fieldsToDisplay: fd
     };
-    data = SendRequest('searchOpportunities', conds, res);
+    data = sendRequest('searchOpportunities', conds, res);
 }
 
 // Create database instance
@@ -136,7 +119,7 @@ var params = {
 }
 
 //initiate database connection.
-var collections = ["users"];
+var collections = ["users", "cities", "events"];
 var db = require("mongojs").connect(params, collections);
 
 db.users.ensureIndex({
@@ -265,7 +248,8 @@ function addPoints(id, points){
      });   
 }
 
-
+//TODO: Create cacheing functions for storing events.
+//Store list of cities (Los Angeles, CA) query each one
 
 var debug_event = {
     location: 'vmware',
@@ -277,7 +261,6 @@ var debug_event = {
 
 
 function handle_facebook_request(req, res) {
-
     // if the user is logged in
     if (req.facebook.token) {
         req.facebook.get('/me', function (me) {
@@ -350,21 +333,22 @@ function handle_facebook_request(req, res) {
 
 // /searchOpportunities?loc
 app.get('/:fun/:loc', function (req, res) {
-    var loc = req.route.params.loc;
-    switch (req.route.params.fun) {
-    case 'searchOpportunities':
-        searchOpportunities(loc, res);
-        break;
-    case 'searchOrganizations':
-        searchOrganizations(loc, res);
-        break;
-    default:
-        searchOrganizations(loc, res);
+    if(req.facebook.token) {
+         var loc = req.route.params.loc;
+         switch (req.route.params.fun) {
+         case 'searchOpportunities':
+             searchOpportunities(loc, res);
+             break;
+         case 'searchOrganizations':
+             searchOrganizations(loc, res);
+             break;
+         default:
+             searchOrganizations(loc, res);
+         }
     }
+    else
+        res.send("Access Denied");
 });
-
-
-
 
 function get_address(url, callback) {
     request({
@@ -397,9 +381,5 @@ function get_address(url, callback) {
     });
 }
 
-
-
-
 app.get('/', handle_facebook_request);
 app.post('/', handle_facebook_request);
-
