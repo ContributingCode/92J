@@ -54,17 +54,21 @@ function sendRequest(action, query, usrres) {
         res.on('end', function () {
             var formatted_data = JSON.parse(total);
             var count = 0;
-            formatted_data.opportunities.forEach(function (opportunity) {
-                get_address(decodeURIComponent(opportunity.vmUrl), function (address) {
-                    opportunity.address = address;
-                    count++;
-                    if (count >= formatted_data.opportunities.length) {
-                        console.log(formatted_data);
-                        usrres.end(JSON.stringify(formatted_data));
-                    }
+	    if(formatted_data.opportunities){
+                formatted_data.opportunities.forEach(function (opportunity) {
+                    get_address(decodeURIComponent(opportunity.vmUrl), function (address) {
+                        opportunity.address = address;
+                        count++;
+                        if (count >= formatted_data.opportunities.length) {
+                            console.log(formatted_data);
+                            usrres.end(JSON.stringify(formatted_data));
+                        }
 
+                   });
                 });
-            });
+	    }
+	    else
+                usrres.end(JSON.stringify(formatted_data));
         });
     });
 
@@ -81,6 +85,7 @@ function searchOrganizations(loc, res) {
     fd = ["name", "location", "title", "beneficiary", "vmUrl", "imageUrl"];
     conds = {
         location: loc,
+	radius: "city",
         fieldsToDisplay: fd
     };
     data = sendRequest('searchOrganizations', conds, res);
@@ -90,6 +95,7 @@ function searchOpportunities(loc, res) {
     fd = ["name", "location", "title", "beneficiary", "vmUrl", "imageUrl"];
     conds = {
         location: loc,
+	radius: "city",
         fieldsToDisplay: fd
     };
     data = sendRequest('searchOpportunities', conds, res);
