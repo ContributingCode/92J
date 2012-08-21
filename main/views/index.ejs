@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns:fb="http://ogp.me/ns/fb#" lang="en">
     
@@ -179,29 +180,19 @@
                 });
             }
 
-            function searchEvents(address) {
-               //console.log(escape(address));
+	    $("#loading").ajaxStart(function(){
+		$(this).show();
+	    }).ajaxStop(function(){
+		$(this).hide();
+	     });
 
-                var mySplitResult = address.split(" ")
-
-                var city = '';
-
-                //var city = mySplitResult[0] + '.' + mySplitResult[1];
-
-                mySplitResult.forEach(function (word) {
-                    if (word != undefined) {
-                        city += word + '.';
-                    }
-                });
-
-                console.log(city);
-
-		
+            function showAddress(address) {
                 var geocoder = new google.maps.Geocoder();
                 if (geocoder) {
                     geocoder.geocode({
                         'address': address
                     },
+
                     function (results, status) {
                         if (status == google.maps.GeocoderStatus.OK) {
                             var loc = results[0].geometry.location;
@@ -218,47 +209,61 @@
                                     infowindow.open(map, marker);
                                 }
                             }));
-
-
-				$('#accordion_nearby_events').html('<p><img src="http://i.stack.imgur.com/FhHRx.gif" /> Please Wait</p>')
-				$.ajax({
-				    url: 'http://localhost:3000/searchOpportunities/' + city,
-				    type: 'GET',
-				    data: results,
-				    success: function (result) {
-					$('#accordion_nearby_events').html('');
-					var event_data = JSON.parse(result);
-					console.log(event_data);
-					var waitTimer = 0;
-					event_data.opportunities.forEach(function (opportunity) {
-					    var Org = opportunity.parentOrg.name;
-					    var Title = opportunity.title;
-					    var url = decodeURIComponent(opportunity.vmUrl);
-					    var description = opportunity.plaintextDescription;
-					    var address = opportunity.address;
-					    console.log(url);
-					    markMap(address, geocoder);
-					    //markMap(address, geocoder);
-
-					    $('#accordion_nearby_events').append('<h3><a href="' + url + '">' + Title + '</a></h3><div><a href="' + url + '">' + Org + '</a><p>' + description + '</p></div>').accordion('destroy').accordion({
-						collapsible: true
-					    });
-					});
-
-				    },
-				    failure: function () {
-					$('#accordion_nearby_events').html('');
-					console.log("failure");
-				    }
-				});
-
                         } else {
                             alert("Not found: " + status);
                         }
                     });
                 }
 
- 
+                //console.log(escape(address));
+
+                var mySplitResult = address.split(" ")
+
+                var city = '';
+
+                //var city = mySplitResult[0] + '.' + mySplitResult[1];
+
+                mySplitResult.forEach(function (word) {
+                    if (word != undefined) {
+                        city += word + '.';
+                    }
+                });
+
+                console.log(city);
+
+		
+		$('#accordion_nearby_events').html('<p><img src="http://i.stack.imgur.com/FhHRx.gif" /> Please Wait</p>')
+                $.ajax({
+                    url: 'http://localhost:3000/searchOpportunities/' + city,
+                    type: 'GET',
+                    success: function (result) {
+                        $('#accordion_nearby_events').html('');
+                        var event_data = JSON.parse(result);
+                        console.log(event_data);
+                        var waitTimer = 0;
+                        event_data.opportunities.forEach(function (opportunity) {
+                            var Org = opportunity.parentOrg.name;
+                            var Title = opportunity.title;
+                            var url = decodeURIComponent(opportunity.vmUrl);
+                            var description = opportunity.plaintextDescription;
+                            var address = opportunity.address;
+                            console.log(url);
+                            markMap(address, geocoder);
+                            //markMap(address, geocoder);
+
+                            $('#accordion_nearby_events').append('<h3><a href="' + url + '">' + Title + '</a></h3><div><a href="' + url + '">' + Org + '</a><p>' + description + '</p></div>').accordion('destroy').accordion({
+                                collapsible: true
+                            });
+                        });
+
+                    },
+                    failure: function () {
+			$('#accordion_nearby_events').html('');
+                        console.log("failure");
+                    }
+                });
+
+
             }
 
             function markMap(address, geocoder) {
@@ -344,7 +349,7 @@
                         </div>
                         <div id="tabs-3">
                             <search_toolbar>
-                                <form action="#" onsubmit="searchEvents(this.address.value); return false">
+                                <form action="#" onsubmit="showAddress(this.address.value); return false">
                                     <input type="text" style="width:98%" id='searchbox' name="address" value="3401 Hillview Ave Palo Alto, CA"
                                     />
                                     <input type="submit" value="Search Address" />
