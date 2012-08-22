@@ -180,12 +180,6 @@
                 });
             }
 
-	    $("#loading").ajaxStart(function(){
-		$(this).show();
-	    }).ajaxStop(function(){
-		$(this).hide();
-	     });
-
             function showAddress(address) {
                 var geocoder = new google.maps.Geocoder();
                 if (geocoder) {
@@ -231,10 +225,9 @@
 
                 console.log(city);
 
-		
 		$('#accordion_nearby_events').html('<p><img src="http://i.stack.imgur.com/FhHRx.gif" /> Please Wait</p>')
                 $.ajax({
-                    url: 'http://localhost:3000/searchOpportunities/' + city,
+                    url: '<%= url('/searchOpportunities/') %>' + city,
                     type: 'GET',
                     success: function (result) {
                         $('#accordion_nearby_events').html('');
@@ -359,7 +352,12 @@
                             </div>
                         </div>
                     </div>
-            <% } %>
+              <% } else { %>
+	          <div>
+                     <h1>Welcome, Please login</h1>
+		     <div class="fb-login-button" data-scope="user_likes,user_photos"></div>
+	          </div>
+             <% } %>
         </main_menu>
     </body>
 </html>

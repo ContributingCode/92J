@@ -67,8 +67,10 @@ function sendRequest(action, query, usrres) {
                    });
                 });
 	    }
-	    else
-                usrres.end(JSON.stringify(formatted_data));
+	    else{
+		console.log("Sending the formatted_data anyway?");
+                usrres.end("Didn't Get anything");
+	    }
         });
     });
 
@@ -98,6 +100,7 @@ function searchOpportunities(loc, res) {
 	radius: "city",
         fieldsToDisplay: fd
     };
+    console.log("Sending Request");
     data = sendRequest('searchOpportunities', conds, res);
 }
 
