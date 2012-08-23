@@ -1,8 +1,9 @@
 var async = require('async');
 var express = require('express');
 var http = require('http');
-var jsdom = require('jsdom');
 var request = require('request');
+var domino = require('domino');
+var zepto = require('zepto-node');
 
 // create an express webserver
 var app = express.createServer(
@@ -107,7 +108,7 @@ function searchOpportunities(loc, res) {
 // Create database instance
 if (process.env.VCAP_SERVICES) {
     var env = JSON.parse(process.env.VCAP_SERVICES);
-    var mongo = env['mongodb-1.8'][0]['credentials'];
+    var mongo = env['mongodb-2.0'][0]['credentials'];
 } else {
     var mongo = {
         "hostname": "localhost",
@@ -359,37 +360,57 @@ app.get('/:fun/:loc', function (req, res) {
         res.send("Access Denied");
 });
 
-function get_address(url, callback) {
-    request({
-        uri: url
-    }, function (err, response, body) {
-        // Checks if page was found
-        if (err && response.statusCode !== 200) {
-            console.log('Request error.');
-        }
-        //Send the body param as the HTML code we will parse in jsdom
-        //also tell jsdom to attach jQuery in the script
-        console.log("jsdom.env prior")
-        jsdom.env({
-            html: body,
-            scripts: ['http://code.jquery.com/jquery-1.6.min.js']
-        }, function (err, window) {
-            //Use jQuery just as in any regular HTML page
-            var $ = window.jQuery,
-                $body = $('body'),
-                $videos = $body.find('.section.details');
 
-            //I will use regular jQuery selectors
-            var s = $($videos[0]).find('address.adr').text();
-            s = s.replace(/(^\s*)|(\s*$)/gi, "");
-            s = s.replace(/[ ]{2,}/gi, " ");
-            s = s.replace(/\n /, "\n");
-            var address = s;
-            console.log(address);
-            callback(address);
-        });
-    });
+
+function get_address(url, callback) {
+     request({
+          uri: url
+     }, function (err, response, body) {
+          var window = domino.createWindow();
+          var $ = zepto(window)
+          $('body').append(body);
+          var $videos = $('body').find('.section.details');
+          var s = $($videos[0]).find('address.adr').text();
+          s = s.replace(/(^\s*)|(\s*$)/gi, "");
+          s = s.replace(/[ ]{2,}/gi, " ");
+          s = s.replace(/\n /, "\n");
+          var address = s;
+          console.log(address);
+	  callback(address);
+     });
 }
+
+//function get_address(url, callback) {
+//    request({
+//        uri: url
+//    }, function (err, response, body) {
+//        // Checks if page was found
+//        if (err && response.statusCode !== 200) {
+//            console.log('Request error.');
+//        }
+//        //Send the body param as the HTML code we will parse in jsdom
+//        //also tell jsdom to attach jQuery in the script
+//        console.log("jsdom.env prior")
+//        jsdom.env({
+//            html: body,
+//            scripts: ['http://code.jquery.com/jquery-1.6.min.js']
+//        }, function (err, window) {
+//            //Use jQuery just as in any regular HTML page
+//            var $ = window.jQuery,
+//                $body = $('body'),
+//                $videos = $body.find('.section.details');
+//
+//            //I will use regular jQuery selectors
+//            var s = $($videos[0]).find('address.adr').text();
+//            s = s.replace(/(^\s*)|(\s*$)/gi, "");
+//            s = s.replace(/[ ]{2,}/gi, " ");
+//            s = s.replace(/\n /, "\n");
+//            var address = s;
+//            console.log(address);
+//            callback(address);
+//        });
+//    });
+//}
 
 app.get('/', handle_facebook_request);
 app.post('/', handle_facebook_request);

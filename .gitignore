@@ -43,3 +43,4 @@ launch.sh
 node_modules
 *.bak
 *.yml
+*.sh

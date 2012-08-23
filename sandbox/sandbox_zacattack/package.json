@@ -10,8 +10,9 @@
     "express":   "2.5.2",
     "faceplate": "0.0.4",
     "mongojs": "",
-    "jsdom": "",
-    "request": ""
+    "request": "",
+    "domino": "",
+    "zepto-node": ""
   },
 
   "engines": {
