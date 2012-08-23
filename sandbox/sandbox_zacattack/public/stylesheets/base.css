@@ -12,6 +12,7 @@ body {
   margin: 0px;
   overflow: hidden;
   overflow-y: hidden;
+  height:100%;
 }
 
 html {
@@ -50,7 +51,8 @@ main_menu {
   width: 37%;
   height: 100%;
   background: url(/images/samples-bg2.png);
-  outline: 0;
+  border: none;
+
 }
 
 
@@ -79,28 +81,23 @@ main_menu #picture {
 }
 
 main_menu #tabs{
-  background-color: transparent;
-  background: transparent;
-  height: 100%;
-  width: 100%;
-  outline: 0;
-  font: 12;
-}
-
-search_toolbar {
-  width: 100%;
+	background-color: transparent;
+	background: transparent;
+	height: 80%;
+	width: 100%;
+	font: 10;
+	border: none;
 }
 
 main_menu #scrollbox {
-  overflow: hidden;
-  width: 90%;
-  height: 100%;
-  background-color: transparent;
-  overflow-y: auto;
-  position: absolute;
-  scroll: hidden;
-  outline: 0;
+	overflow: auto;
+	width: 90%;
+	background-color: transparent;
+	position: absolute;
+	outline: 0;
+	height: 80%;
 }
+
 
 main_menu #demoHeaders {
   background-color: transparent;
@@ -166,7 +163,6 @@ header #demo {
   width: 250px;
 
 }
-
 
 header .tagline {
   position: absolute; 
@@ -446,28 +442,6 @@ header .tagline {
   text-indent: -9999px;
 }
 
-#samples .inline .photos li {
-  margin-left: 0;
-  margin-right: 12px;
-}
 
 
-/* ------------------------------------------ */
 
-/* =clearfix
---------------------------------------------- 
-.clearfix:after {
-  width: 32px;
-  clear: both;
-  content: ".";
-  display: block;
-  font-size: 0;
-  height: 0;
-  line-height: 0;
-  visibility: hidden;
-}
-
-.clearfix {
-  width: 400px;
-  zoom: 1;
-}*/

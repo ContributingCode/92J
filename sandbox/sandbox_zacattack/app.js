@@ -1,18 +1,8 @@
-
 var async = require('async');
 var express = require('express');
 var http = require('http');
 var jsdom = require('jsdom');
 var request = require('request');
-
-
-//var jQuery = require('jQuery');
-
-
-// Example useage of getJSON.  Important for querying Volunteer Match
-//jQuery.getJSON('http://twitter.com/status/user_timeline/treason.json?count=10&callback=?',function(data) {
-//  console.log(data);
-//});
 
 // create an express webserver
 var app = express.createServer(
@@ -20,6 +10,7 @@ express.logger(),
 express.static(__dirname + '/public'),
 express.bodyParser(),
 express.cookieParser(),
+
 // set this to a secret value to encrypt session cookies
 express.session({
     secret: process.env.SESSION_SECRET || 'secret123'
@@ -37,23 +28,19 @@ var volunteerMatch = {
     accountKey: process.env.VOLUNTEER_MATCH_KEY
 };
 
-var name = volunteerMatch.accountName;
-var key = volunteerMatch.accountKey;
-var path = '/api/call';
-
 // Send request to ask information
-function SendRequest(action, query, usrres) {
+function sendRequest(action, query, usrres) {
+    var path = '/api/call';
     if (query.length != 0) {
-        var url = path + '?action=' + action + '&key=' + key + '&query=' + JSON.stringify(query);
+        var url = path + '?action=' + action + '&key=' + volunteerMatch.accountKey + '&query=' + JSON.stringify(query);
     } else {
-        var url = path + '?action=' + action + '&key=' + key;
+        var url = path + '?action=' + action + '&key=' + volunteerMatch.accountKey;
     }
     console.log('url:, ' + url);
     var get_options = {
         host: 'www.volunteermatch.org',
         path: url,
     };
-
 
     var get_req = http.get(get_options, function (res) {
         console.log('STATUS: ' + res.statusCode);
@@ -67,17 +54,23 @@ function SendRequest(action, query, usrres) {
         res.on('end', function () {
             var formatted_data = JSON.parse(total);
             var count = 0;
-            formatted_data.opportunities.forEach(function (opportunity) {
-                get_address(decodeURIComponent(opportunity.vmUrl), function (address) {
-                    opportunity.address = address;
-                    count++;
-                    if (count >= formatted_data.opportunities.length) {
-                        console.log(formatted_data);
-                        usrres.end(JSON.stringify(formatted_data));
-                    }
+	    if(formatted_data.opportunities){
+                formatted_data.opportunities.forEach(function (opportunity) {
+                    get_address(decodeURIComponent(opportunity.vmUrl), function (address) {
+                        opportunity.address = address;
+                        count++;
+                        if (count >= formatted_data.opportunities.length) {
+                            console.log(formatted_data);
+                            usrres.end(JSON.stringify(formatted_data));
+                        }
 
+                   });
                 });
-            });
+	    }
+	    else{
+		console.log("Sending the formatted_data anyway?");
+                usrres.end("Didn't Get anything");
+	    }
         });
     });
 
@@ -94,22 +87,21 @@ function searchOrganizations(loc, res) {
     fd = ["name", "location", "title", "beneficiary", "vmUrl", "imageUrl"];
     conds = {
         location: loc,
-        nbOfResults: 20,
-        pageNumber: 3,
+	radius: "city",
         fieldsToDisplay: fd
     };
-    data = SendRequest('searchOrganizations', conds, res);
+    data = sendRequest('searchOrganizations', conds, res);
 }
 
 function searchOpportunities(loc, res) {
     fd = ["name", "location", "title", "beneficiary", "vmUrl", "imageUrl"];
     conds = {
         location: loc,
-        nbOfResults: 20,
-        pageNumber: 3,
+	radius: "city",
         fieldsToDisplay: fd
     };
-    data = SendRequest('searchOpportunities', conds, res);
+    console.log("Sending Request");
+    data = sendRequest('searchOpportunities', conds, res);
 }
 
 // Create database instance
@@ -136,7 +128,7 @@ var params = {
 }
 
 //initiate database connection.
-var collections = ["users"];
+var collections = ["users", "cities", "events"];
 var db = require("mongojs").connect(params, collections);
 
 db.users.ensureIndex({
@@ -196,15 +188,10 @@ function render_page(req, res) {
     });
 }
 
-
-function spit_details(req, res) {
-    console.log('ID  = ' + req.params.id);
-    //Check if logged in..
-    //if(req.facebook.token) {
-    //Give me your details..
-    //req.facebook.get('/me', function(me) {
+// Database helper functions
+function addUser(id) {
+    console.log('ID  = ' + id);
     //Searching if you exist..
-    var id = req.params.id;
     db.users.find({
         'fb_uid': id
     }, function (err, result) {
@@ -216,47 +203,62 @@ function spit_details(req, res) {
             console.log('Record not found' + result);
             db.users.save({
                 'fb_uid': id,
-                'links': ['http://fb.com']
+		'points': 0
             }, function (err, log) {
-                console.log('Callback');
                 var body = 'You are new, but dont worry everybody here was once new but now its their home coz you never leave ...Hotel California';
-                res.writeHead(200, {
-                    'Content-Length': body.length,
-                    'Content-Type': 'text/plain'
-                });
-                res.end(body);
-            });
-        } else {
-            console.log("Found, " + JSON.stringify(result));
-            //Found .. here are your embarrasing details
-            var url = 'http://reddit.com/r/funny'
-            db.users.update({
-                'fb_uid': id
-            }, {
-                $set: {
-                    'fb_uid': id
-                },
-                $push: {
-                    'links': url
-                }
-            },
-            true,
-
-            function (err, log) {
-                console.log("Callback");
-                var body = JSON.stringify(result);
-                //                res.writeHead(200, {
-                //                  'Content-Length': body.length,
-                //                      'Content-Type': 'text/plain' });
-                res.send(result);
-                //                res.end(body);
-            });
+                console.log(body);
+	    });
         }
     });
-    //});
-    //}
 }
 
+function favoriteEvent(id, event){
+     db.users.update({'fb_uid': id}, {$addToSet:{"favorites": event}}, function(err, log){
+        if(err)
+            console.log(log);
+        else
+	   console.log('User: ' + id + ' favorited event: ' + event);
+     });
+}
+
+function unfavoriteEvent(id, event){
+    db.users.update({'fb_uid': id}, {$pull:{"favorites": event}}, function(err, log){
+        if(err)
+            console.log(log);
+        else
+	   console.log('User: ' + id + ' unfavorited event: ' + event);
+     });
+}
+
+function addEventAsAttended(id, event){
+      db.users.update({'fb_uid': id}, {$addToSet:{"attended": event}}, function(err, log){
+        if(err)
+            console.log(log);
+        else
+	   console.log('User: ' + id + ' attended event: ' + event);
+     });   
+}
+
+function removeUser(id){
+     db.users.remove({'fb_uid': id}, function(err, log) {
+        if(err)
+            console.log(log);
+        else
+	   console.log('User: ' + id + ' has left the party.');    
+     });
+}
+
+function addPoints(id, points){
+     db.users.update({'fb_uid': id}, {$inc:{"points": points}}, function(err, log){
+        if(err)
+            console.log(log);
+        else
+	   console.log('User: ' + id + ' earned ' + points + ' points!!');
+     });   
+}
+
+//TODO: Create cacheing functions for storing events.
+//Store list of cities (Los Angeles, CA) query each one
 
 var debug_event = {
     location: 'vmware',
@@ -268,7 +270,6 @@ var debug_event = {
 
 
 function handle_facebook_request(req, res) {
-
     // if the user is logged in
     if (req.facebook.token) {
         req.facebook.get('/me', function (me) {
@@ -316,6 +317,8 @@ function handle_facebook_request(req, res) {
 
         function (cb) {
             req.facebook.get('/me', function (me) {
+		addUser(me.id);
+		unfavoriteEvent(me.id, debug_event);
                 db.users.find({
                     'fb_uid': me.id
                 }, function (err, result) {
@@ -339,21 +342,22 @@ function handle_facebook_request(req, res) {
 
 // /searchOpportunities?loc
 app.get('/:fun/:loc', function (req, res) {
-    var loc = req.route.params.loc;
-    switch (req.route.params.fun) {
-    case 'searchOpportunities':
-        searchOpportunities(loc, res);
-        break;
-    case 'searchOrganizations':
-        searchOrganizations(loc, res);
-        break;
-    default:
-        searchOrganizations(loc, res);
+    if(req.facebook.token) {
+         var loc = req.route.params.loc;
+         switch (req.route.params.fun) {
+         case 'searchOpportunities':
+             searchOpportunities(loc, res);
+             break;
+         case 'searchOrganizations':
+             searchOrganizations(loc, res);
+             break;
+         default:
+             searchOrganizations(loc, res);
+         }
     }
+    else
+        res.send("Access Denied");
 });
-
-
-
 
 function get_address(url, callback) {
     request({
@@ -364,7 +368,8 @@ function get_address(url, callback) {
             console.log('Request error.');
         }
         //Send the body param as the HTML code we will parse in jsdom
-        //also tell jsdom to attach jQuery in the scripts
+        //also tell jsdom to attach jQuery in the script
+        console.log("jsdom.env prior")
         jsdom.env({
             html: body,
             scripts: ['http://code.jquery.com/jquery-1.6.min.js']
@@ -380,17 +385,11 @@ function get_address(url, callback) {
             s = s.replace(/[ ]{2,}/gi, " ");
             s = s.replace(/\n /, "\n");
             var address = s;
-            //console.log(address);
+            console.log(address);
             callback(address);
         });
     });
 }
 
-
-
-
 app.get('/', handle_facebook_request);
 app.post('/', handle_facebook_request);
-
-app.get('/details/:id', spit_details);
-app.post('/details/:id', spit_details);
