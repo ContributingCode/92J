@@ -1,9 +1,9 @@
 var async = require('async');
 var express = require('express');
 var http = require('http');
-var request = require('request');
-var domino = require('domino');
-var zepto = require('zepto-node');
+//var request = require('request');
+//var domino = require('domino');
+//var zepto = require('zepto-node');
 
 // create an express webserver
 var app = express.createServer(
@@ -56,17 +56,17 @@ function sendRequest(action, query, usrres) {
             var formatted_data = JSON.parse(total);
             var count = 0;
 	    if(formatted_data.opportunities){
-                formatted_data.opportunities.forEach(function (opportunity) {
-                    get_address(decodeURIComponent(opportunity.vmUrl), function (address) {
-                        opportunity.address = address;
-                        count++;
-                        if (count >= formatted_data.opportunities.length) {
-                            console.log(formatted_data);
+//                formatted_data.opportunities.forEach(function (opportunity) {
+//                    get_address(decodeURIComponent(opportunity.vmUrl), function (address) {
+//                        opportunity.address = address;
+//                        count++;
+//                        if (count >= formatted_data.opportunities.length) {
+//                            console.log(formatted_data);
                             usrres.end(JSON.stringify(formatted_data));
-                        }
+//                        }
 
-                   });
-                });
+//                   });
+//                });
 	    }
 	    else{
 		console.log("Sending the formatted_data anyway?");
@@ -362,23 +362,23 @@ app.get('/:fun/:loc', function (req, res) {
 
 
 
-function get_address(url, callback) {
-     request({
-          uri: url
-     }, function (err, response, body) {
-          var window = domino.createWindow();
-          var $ = zepto(window)
-          $('body').append(body);
-          var $videos = $('body').find('.section.details');
-          var s = $($videos[0]).find('address.adr').text();
-          s = s.replace(/(^\s*)|(\s*$)/gi, "");
-          s = s.replace(/[ ]{2,}/gi, " ");
-          s = s.replace(/\n /, "\n");
-          var address = s;
-          console.log(address);
-	  callback(address);
-     });
-}
+//function get_address(url, callback) {
+//     request({
+//          uri: url
+//     }, function (err, response, body) {
+//          var window = domino.createWindow();
+//          var $ = zepto(window)
+//          $('body').append(body);
+//          var $videos = $('body').find('.section.details');
+//          var s = $($videos[0]).find('address.adr').text();
+//          s = s.replace(/(^\s*)|(\s*$)/gi, "");
+//          s = s.replace(/[ ]{2,}/gi, " ");
+//          s = s.replace(/\n /, "\n");
+//          var address = s;
+//          console.log(address);
+//	  callback(address);
+//     });
+//}
 
 //function get_address(url, callback) {
 //    request({
