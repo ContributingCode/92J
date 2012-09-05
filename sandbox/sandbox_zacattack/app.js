@@ -201,7 +201,7 @@ function addUser(id) {
             console.log('error: ' + err);
         } else if (result.length == 0) {
             //Couldn't find ...hmmm must add you
-            console.log('Record not found' + result);
+            console.log('Record not found ' + result);
             db.users.save({
                 'fb_uid': id,
 		'points': 0
@@ -360,6 +360,18 @@ app.get('/:fun/:loc', function (req, res) {
         res.send("Access Denied");
 });
 
+
+// Cache Plan:
+//      Store all U.S. cities in database
+//      When a user queries, get a list of cities that correspond within 100 miles to his location
+//      Once done, Add (if they don't exist) to the active cities list.
+//            For every new city added, query volunteermatch for more opportunities and add them to the database of opportunities.
+//      Do normal greater circle search for user on opportunities.
+//      
+//      Everynight, perform refresh for opportunities that are contained within the active list.
+//
+// POSSIBLE ADDITION:
+//      If no opportunities are repeatedly returned for a city, blacklist it as inactive and do not attempt to query it. again.
 
 
 //function get_address(url, callback) {
