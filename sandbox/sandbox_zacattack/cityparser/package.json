@@ -1,0 +1,13 @@
+{
+  "name":    "cityParser",
+  "version": "0.0.1",
+
+  "description": "This program will scrape every U.S. city, and input it's information into a MongoDB instance.",
+
+  "dependencies": {
+    "async":     "0.1.18",
+    "mongojs": "",
+    "request": "",
+    "jsdom": ""
+  }
+}
