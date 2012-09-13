@@ -5,14 +5,14 @@ var http = require('http');
 //var domino = require('domino');
 //var zepto = require('zepto-node');
 
-// create an express webserver
+// Create an express webserver
 var app = express.createServer(
 express.logger(),
 express.static(__dirname + '/public'),
 express.bodyParser(),
 express.cookieParser(),
 
-// set this to a secret value to encrypt session cookies
+// Set this to a secret value to encrypt session cookies
 express.session({
     secret: process.env.SESSION_SECRET || 'secret123'
 }),
@@ -129,7 +129,7 @@ var params = {
 }
 
 //initiate database connection.
-var collections = ["users", "cities", "events"];
+var collections = ["users", "cities", "events", "citiesOfInterest",];
 var db = require("mongojs").connect(params, collections);
 
 db.users.ensureIndex({
@@ -213,6 +213,23 @@ function addUser(id) {
     });
 }
 
+
+
+function addCityForCaching(city){
+     //TODO: may not work initially.  Mongojs seems to prefer object defined on the fly
+     // as opposed to predefined passed objects (maybe look into passing the JSON
+     // as a different object type).
+
+     // Query the city for results and cache the results
+
+     // Add city to list of cities that need to be cached.
+     db.citiesOfInterest.save(city, function (err, result) {
+          if(err)
+               console.log("ERROR: " + err);
+          console.log(result);
+     });
+}
+
 function favoriteEvent(id, event){
      db.users.update({'fb_uid': id}, {$addToSet:{"favorites": event}}, function(err, log){
         if(err)
@@ -267,8 +284,6 @@ var debug_event = {
     parentOrg: 'EMC',
     vmURL: 'contributingcode.cloudfoundry.com'
 };
-
-
 
 function handle_facebook_request(req, res) {
     // if the user is logged in
@@ -341,19 +356,45 @@ function handle_facebook_request(req, res) {
     }
 }
 
+function searchCachedOpportunities(loc, res)
+{
+
+     // Check What cities are near the user
+
+     db.cities.find({ "loc": {$near : [loc.lon, loc.lat]}}), function(err, result){
+	     if(err)
+               res.send("Database Error");
+             else {
+               // Match the result against the cached cities database, find what is not there.
+	       
+	     }
+     }
+
+     // Geospatial query with location parameter, use res to fire it back.
+     db.events.find({ "loc": {$near : [loc.lon, loc.lat]}}, function(err, result){
+          if(err)
+               res.send("Database Error");
+          else
+               res.send(JSON.stringify(result));
+     });
+}
+
 // /searchOpportunities?loc
-app.get('/:fun/:loc', function (req, res) {
+app.get('/:fun/:lon/:lat', function (req, res) {
     if(req.facebook.token) {
-         var loc = req.route.params.loc;
+         var loc = {
+		 "lon": req.route.params.lon,
+		 "lat": req.route.params.lat
+	 };
          switch (req.route.params.fun) {
          case 'searchOpportunities':
-             searchOpportunities(loc, res);
+             searchCachedOpportunities(loc, res);
              break;
          case 'searchOrganizations':
              searchOrganizations(loc, res);
              break;
          default:
-             searchOrganizations(loc, res);
+             searchCachedOpportunities(loc, res);
          }
     }
     else
