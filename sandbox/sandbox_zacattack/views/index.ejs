@@ -235,16 +235,16 @@
                         console.log(event_data);
                         var waitTimer = 0;
                         event_data.opportunities.forEach(function (opportunity) {
-                            var Org = opportunity.parentOrg.name;
+                           //var Org = opportunity.parentOrg.name;
                             var Title = opportunity.title;
                             var url = decodeURIComponent(opportunity.vmUrl);
-                            var description = opportunity.plaintextDescription;
+                            var description = opportunity.description;
                             var address = opportunity.address;
                             console.log(url);
                             markMap(address, geocoder);
                             //markMap(address, geocoder);
 
-                            $('#accordion_nearby_events').append('<h3><a href="' + url + '">' + Title + '</a></h3><div><a href="' + url + '">' + Org + '</a><p>' + description + '</p></div>').accordion('destroy').accordion({
+                            $('#accordion_nearby_events').append('<h3><a href="' + url + '">' + Title + '</a></h3><div><a href="' + url + '">' + '</a><p>' + description + '</p></div>').accordion('destroy').accordion({
                                 collapsible: true
                             });
                         });

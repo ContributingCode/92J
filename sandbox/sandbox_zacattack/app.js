@@ -85,7 +85,7 @@ function sendRequest(action, query, usrres) {
 
 // input the location string
 function searchOrganizations(loc, res) {
-    fd = ["name", "location", "title", "beneficiary", "vmUrl", "imageUrl"];
+    fd = ["location", "title", "parentOrg","description", "vmUrl", "imageUrl"];
     conds = {
         location: loc,
 	radius: "city",
@@ -95,7 +95,7 @@ function searchOrganizations(loc, res) {
 }
 
 function searchOpportunities(loc, res) {
-    fd = ["name", "location", "title", "beneficiary", "vmUrl", "imageUrl"];
+    fd = ["location", "title", "parentOrg","description", "vmUrl", "imageUrl"];
     conds = {
         location: loc,
 	radius: "city",
@@ -176,6 +176,8 @@ app.dynamicHelpers({
     },
 });
 
+
+// Renders Page.  Might want to play around with this a bit.
 function render_page(req, res) {
     req.facebook.app(function (app) {
         req.facebook.me(function (user) {
@@ -380,15 +382,17 @@ function searchCachedOpportunities(loc, res)
 }
 
 // /searchOpportunities?loc
-app.get('/:fun/:lon/:lat', function (req, res) {
+app.get('/:fun/:loc', function (req, res) {
     if(req.facebook.token) {
-         var loc = {
-		 "lon": req.route.params.lon,
-		 "lat": req.route.params.lat
-	 };
-         switch (req.route.params.fun) {
+        // var loc = {
+	//	 "lon": req.route.params.lon,
+	//	 "lat": req.route.params.lat
+	// };
+        
+        var loc = req.route.params.loc;	
+	switch (req.route.params.fun) {
          case 'searchOpportunities':
-             searchCachedOpportunities(loc, res);
+             searchOpportunities(loc, res);
              break;
          case 'searchOrganizations':
              searchOrganizations(loc, res);
