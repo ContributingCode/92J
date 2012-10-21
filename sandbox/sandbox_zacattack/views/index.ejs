@@ -227,14 +227,14 @@
 
 		$('#accordion_nearby_events').html('<p><img src="http://i.stack.imgur.com/FhHRx.gif" /> Please Wait</p>')
                 $.ajax({
-                    url: '<%= url('/searchOpportunities/') %>' + city,
+                    url: '<%= url('/searchOpportunities/') %>' + '34.0568891/-118.4473021',
                     type: 'GET',
                     success: function (result) {
                         $('#accordion_nearby_events').html('');
                         var event_data = JSON.parse(result);
                         console.log(event_data);
                         var waitTimer = 0;
-                        event_data.opportunities.forEach(function (opportunity) {
+                        event_data.forEach(function (opportunity) {
                            //var Org = opportunity.parentOrg.name;
                             var Title = opportunity.title;
                             var url = decodeURIComponent(opportunity.vmUrl);

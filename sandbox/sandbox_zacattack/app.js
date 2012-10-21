@@ -1,9 +1,12 @@
 var async = require('async');
 var express = require('express');
 var http = require('http');
-//var request = require('request');
-//var domino = require('domino');
-//var zepto = require('zepto-node');
+var schedule = require('node-schedule');
+
+Array.prototype.diff = function(a) {
+    return this.filter(function(i) {return !(a.indexOf(i) > -1);});
+};
+
 
 // Create an express webserver
 var app = express.createServer(
@@ -30,7 +33,7 @@ var volunteerMatch = {
 };
 
 // Send request to ask information
-function sendRequest(action, query, usrres) {
+function sendRequest(action, query) {
     var path = '/api/call';
     if (query.length != 0) {
         var url = path + '?action=' + action + '&key=' + volunteerMatch.accountKey + '&query=' + JSON.stringify(query);
@@ -50,59 +53,58 @@ function sendRequest(action, query, usrres) {
         var total = '';
         res.on('data', function (chunk) {
             total += chunk;
+            //console.log(chunk);
         });
-
+		console.log("We got here");
         res.on('end', function () {
             var formatted_data = JSON.parse(total);
             var count = 0;
-	    if(formatted_data.opportunities){
-//                formatted_data.opportunities.forEach(function (opportunity) {
-//                    get_address(decodeURIComponent(opportunity.vmUrl), function (address) {
-//                        opportunity.address = address;
-//                        count++;
-//                        if (count >= formatted_data.opportunities.length) {
-//                            console.log(formatted_data);
-                            usrres.end(JSON.stringify(formatted_data));
-//                        }
-
-//                   });
-//                });
-	    }
-	    else{
-		console.log("Sending the formatted_data anyway?");
-                usrres.end("Didn't Get anything");
-	    }
+            if (formatted_data.opportunities) {
+            	formatted_data.opportunities.forEach(function (opportunity) {
+            		if(opportunity.location.geoLocation)
+            		{
+            			opportunity.loc = [opportunity.location.geoLocation.longitude, opportunity.location.geoLocation.latitude];
+            			console.log(opportunity);
+            			db.events.insert(opportunity, function(err, result) { console.log(err)});
+            		}
+            	});
+            } else {
+                console.log("Sending the formatted_data anyway?");
+                console.log("Didn't Get anything");
+            }
         });
     });
 
+	
     // for debugging
     get_req.on('error', function (e) {
-        console.log("Got error: " + e.message);
+        //console.log("Got error: " + e.message);
     });
-    console.log('host :' + get_options.host);
+    //console.log('host :' + get_options.host);
     return -1;
 }
 
 // input the location string
 function searchOrganizations(loc, res) {
-    fd = ["location", "title", "parentOrg","description", "vmUrl", "imageUrl"];
+    fd = ["location", "title", "parentOrg", "description", "vmUrl", "imageUrl"];
     conds = {
         location: loc,
-	radius: "city",
+        radius: "city",
         fieldsToDisplay: fd
     };
     data = sendRequest('searchOrganizations', conds, res);
 }
 
-function searchOpportunities(loc, res) {
-    fd = ["location", "title", "parentOrg","description", "vmUrl", "imageUrl"];
+function searchOpportunities(loc) {
+    fd = ["location", "title", "parentOrg", "description", "vmUrl", "imageUrl"];
     conds = {
-        location: loc,
-	radius: "city",
+        //location: encodeURIComponent(loc.NAME) + "," + loc.USPS,
+        location: "chicago,il",
+        radius: "city",
         fieldsToDisplay: fd
     };
     console.log("Sending Request");
-    data = sendRequest('searchOpportunities', conds, res);
+    data = sendRequest('searchOpportunities', conds);
 }
 
 // Create database instance
@@ -129,8 +131,14 @@ var params = {
 }
 
 //initiate database connection.
-var collections = ["users", "cities", "events", "citiesOfInterest",];
+var collections = ["users", "cities", "events", "citiesOfInterest", ];
 var db = require("mongojs").connect(params, collections);
+
+db.cities.ensureIndex({"loc": "2d"}, function (err, log) { console.log(log) });
+db.events.ensureIndex({"loc": "2d"}, function (err, log) { console.log(log) });
+
+//Needs to be done outside of the program, sorry :(
+//db.events.ensureIndex({"id":1}, {unique:true}, function(err log) { console.log(log); });
 
 db.users.ensureIndex({
     "fb_uid": 1
@@ -206,75 +214,90 @@ function addUser(id) {
             console.log('Record not found ' + result);
             db.users.save({
                 'fb_uid': id,
-		'points': 0
+                'points': 0
             }, function (err, log) {
                 var body = 'You are new, but dont worry everybody here was once new but now its their home coz you never leave ...Hotel California';
                 console.log(body);
-	    });
+            });
         }
     });
 }
 
 
 
-function addCityForCaching(city){
-     //TODO: may not work initially.  Mongojs seems to prefer object defined on the fly
-     // as opposed to predefined passed objects (maybe look into passing the JSON
-     // as a different object type).
+function addCityForCaching(city) {
+    //TODO: may not work initially.  Mongojs seems to prefer object defined on the fly
+    // as opposed to predefined passed objects (maybe look into passing the JSON
+    // as a different object type).
 
-     // Query the city for results and cache the results
+    // Query the city for results and cache the results
 
-     // Add city to list of cities that need to be cached.
-     db.citiesOfInterest.save(city, function (err, result) {
-          if(err)
-               console.log("ERROR: " + err);
-          console.log(result);
-     });
+    // Add city to list of cities that need to be cached.
+    db.citiesOfInterest.save(city, function (err, result) {
+        if (err) console.log("ERROR: " + err);
+        console.log(result);
+    });
 }
 
-function favoriteEvent(id, event){
-     db.users.update({'fb_uid': id}, {$addToSet:{"favorites": event}}, function(err, log){
-        if(err)
-            console.log(log);
-        else
-	   console.log('User: ' + id + ' favorited event: ' + event);
-     });
+function favoriteEvent(id, event) {
+    db.users.update({
+        'fb_uid': id
+    }, {
+        $addToSet: {
+            "favorites": event
+        }
+    }, function (err, log) {
+        if (err) console.log(log);
+        else console.log('User: ' + id + ' favorited event: ' + event);
+    });
 }
 
-function unfavoriteEvent(id, event){
-    db.users.update({'fb_uid': id}, {$pull:{"favorites": event}}, function(err, log){
-        if(err)
-            console.log(log);
-        else
-	   console.log('User: ' + id + ' unfavorited event: ' + event);
-     });
+function unfavoriteEvent(id, event) {
+    db.users.update({
+        'fb_uid': id
+    }, {
+        $pull: {
+            "favorites": event
+        }
+    }, function (err, log) {
+        if (err) console.log(log);
+        else console.log('User: ' + id + ' unfavorited event: ' + event);
+    });
 }
 
-function addEventAsAttended(id, event){
-      db.users.update({'fb_uid': id}, {$addToSet:{"attended": event}}, function(err, log){
-        if(err)
-            console.log(log);
-        else
-	   console.log('User: ' + id + ' attended event: ' + event);
-     });   
+function addEventAsAttended(id, event) {
+    db.users.update({
+        'fb_uid': id
+    }, {
+        $addToSet: {
+            "attended": event
+        }
+    }, function (err, log) {
+        if (err) console.log(log);
+        else console.log('User: ' + id + ' attended event: ' + event);
+    });
 }
 
-function removeUser(id){
-     db.users.remove({'fb_uid': id}, function(err, log) {
-        if(err)
-            console.log(log);
-        else
-	   console.log('User: ' + id + ' has left the party.');    
-     });
+function removeUser(id) {
+    db.users.remove({
+        'fb_uid': id
+    }, function (err, log) {
+        if (err) console.log(log);
+        else console.log('User: ' + id + ' has left the party.');
+    });
 }
 
-function addPoints(id, points){
-     db.users.update({'fb_uid': id}, {$inc:{"points": points}}, function(err, log){
-        if(err)
-            console.log(log);
-        else
-	   console.log('User: ' + id + ' earned ' + points + ' points!!');
-     });   
+function addPoints(id, points) {
+    db.users.update({
+        'fb_uid': id
+    }, {
+        $inc: {
+            "points": points
+        }
+    }, function (err, log) {
+        if (err) console.log(log);
+        else console.log('User: ' + id + ' earned ' + points + ' points!!');
+    });
 }
 
 //TODO: Create cacheing functions for storing events.
@@ -335,8 +358,8 @@ function handle_facebook_request(req, res) {
 
         function (cb) {
             req.facebook.get('/me', function (me) {
-		addUser(me.id);
-		unfavoriteEvent(me.id, debug_event);
+                addUser(me.id);
+                unfavoriteEvent(me.id, debug_event);
                 db.users.find({
                     'fb_uid': me.id
                 }, function (err, result) {
@@ -358,51 +381,146 @@ function handle_facebook_request(req, res) {
     }
 }
 
-function searchCachedOpportunities(loc, res)
-{
+// This function is three database calls deep.  So it sucks.  Would probably be faster if this was a sql database, but then
+// we'd have extra overhead in other parts of the code.  So win some lose some :P
+function searchCachedOpportunities(loc, res) {
+    // Check What cities are near the user
+    console.log("searchCachedOpportunities");
+    db.cities.find({ "loc": { $near: [loc.lon, loc.lat] }}, function (err, result) {
+        if (err) {
+        	res.send("Database Error");
+        	console.log(err);
+        }
+        else {
+            // Match the result against the cached cities database, find what is not there.
+			console.log(loc.lon + " " + loc.lat);
+			var citiesNear = [];
+			result.forEach( function(jsonObject) {
+				delete jsonObject._id;
+				citiesNear.push(jsonObject);
+			});
+			
+            db.citiesOfInterest.find({}, function (err, result) { // Because I'm in a hurry and I need results!! TODO: MAKE NOT SUCK
+				var resultingCities =[];
+				console.log(result.length);
+				if(result) {
+					result.forEach( function(jsonObject) {
+						//console.log(jsonObject);
+						delete jsonObject._id;
+						resultingCities.push(jsonObject);
+					});
+				}
+                //array subtraction
+                //console.log(resultingCities);
+                //var citiesNotCached = citiesNear.diff(resultingCities);
+                
+                var citiesNotCached = [];
+                var found = 0;
+                
+                if(resultingCities.length != 0) {
+                 
+        	        citiesNear.forEach(function(nearCity)  {
+            	    	resultingCities.forEach(function(cachedCity)
+                		{
+        	    			if(nearCity.NAME == cachedCity.NAME && nearCity.USPS == cachedCity.USPS)
+        	    				found = 1;
+   		             	});
+                		if(found == 0)
+                		{
+            	    		citiesNotCached.push(nearCity)
+        	        		//console.log(nearCity);
+    	            	}
+	                	found = 0;
+                	});
+            	}
+            	else
+            		citiesNotCached = citiesNear; //We have cached nothing
 
-     // Check What cities are near the user
-
-     db.cities.find({ "loc": {$near : [loc.lon, loc.lat]}}), function(err, result){
-	     if(err)
-               res.send("Database Error");
-             else {
-               // Match the result against the cached cities database, find what is not there.
-	       
-	     }
-     }
-
-     // Geospatial query with location parameter, use res to fire it back.
-     db.events.find({ "loc": {$near : [loc.lon, loc.lat]}}, function(err, result){
-          if(err)
-               res.send("Database Error");
-          else
-               res.send(JSON.stringify(result));
-     });
+                console.log(citiesNotCached);
+                if (citiesNotCached.length != 0) //if non-empty
+                {
+                    // Add the city to our list and recall this function (fuck yeah!)
+                    console.log("Woooooot, it's cacheing time!!");
+                    db.citiesOfInterest.insert(citiesNotCached, function(err, result) {
+                    	if(err)
+                    		console.log(err);
+                    	else {
+                    		cacheCities(citiesNotCached, searchCachedOpportunities(loc, res));
+                    	}
+                    });
+                } else {
+                    // Geospatial query with location parameter, use res to fire it back.
+                    console.log("HAPPPPPPPPYYYY TIIIMMMEEEE");
+                    console.log(loc);
+                    db.events.find({
+                        "loc": {
+                            $near: [loc.lon, loc.lat]
+                        }
+                    }, function (err, result) {
+                        if (err) res.send("Database Error");
+                        else res.send(JSON.stringify(result));
+                    });
+                }
+            });
+        }
+    });
 }
 
+
+function cacheCities(cities, cb)
+{
+	cities.forEach(function(city) {
+		db.citiesOfInterest.insert(city, function(err, result)
+		{
+			console.log(cities);
+			console.log("city inserted");
+			searchOpportunities(city);
+		});
+	});
+}
+
+function cacheOpportunities() {
+	db.events.drop(function(err, log)
+	{
+		db.events.ensureIndex({"loc": "2d"}, function (err, log) { 
+			db.citiesOfInterest.find( {}, function(err, result)
+			{
+				cacheCities(result, function() { console.log("Event Refresh Ongoing!"); });
+			});
+		});
+	});
+}
+
+// Create caching CRON job. 2:30 a.m. everyday.
+var rule = new schedule.RecurrenceRule();
+rule.hour = 2;
+rule.minute = 30;
+var job = schedule.scheduleJob(rule, cacheOpportunities());
+
+
 // /searchOpportunities?loc
-app.get('/:fun/:loc', function (req, res) {
-    if(req.facebook.token) {
-        // var loc = {
-	//	 "lon": req.route.params.lon,
-	//	 "lat": req.route.params.lat
-	// };
-        
-        var loc = req.route.params.loc;	
-	switch (req.route.params.fun) {
-         case 'searchOpportunities':
-             searchOpportunities(loc, res);
-             break;
-         case 'searchOrganizations':
-             searchOrganizations(loc, res);
-             break;
-         default:
-             searchCachedOpportunities(loc, res);
-         }
-    }
-    else
-        res.send("Access Denied");
+// To make this work comment out var loc
+app.get('/:fun/:lon/:lat', function (req, res) {
+    if (req.facebook.token) {
+        var loc = {
+    		 "lon": req.route.params.lon,
+        	 "lat": req.route.params.lat
+        };
+        console.log(loc);
+        switch (req.route.params.fun) {
+            case 'searchOpportunities':
+                searchCachedOpportunities(loc, res);
+                break;
+            case 'searchOrganizations':
+                searchOrganizations(loc, res);
+                break;
+            case 'checkIn':
+            	checkIn(loc, res);
+            	break;
+            default:
+                searchCachedOpportunities(loc, res);
+        }
+    } else res.send("Access Denied");
 });
 
 
@@ -417,6 +535,9 @@ app.get('/:fun/:loc', function (req, res) {
 //
 // POSSIBLE ADDITION:
 //      If no opportunities are repeatedly returned for a city, blacklist it as inactive and do not attempt to query it. again.
+
+// Whats left?
+// check-ins and publishing to facebook and linkedin (lots to do).
 
 
 //function get_address(url, callback) {
